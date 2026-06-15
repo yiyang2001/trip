@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>胡志明市旅行攻略 | Ho Chi Minh City Guide</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#f5f5f7;--card:#fff;--text:#1d1d1f;--text2:#6e6e73;--accent:#0071e3;--border:#e5e5e7;--red:#ff3b30;--yellow:#ffcc00;--green:#34c759;--morning:#ff9500;--afternoon:#ffcc00;--evening:#af52de;--night:#5856d6;--radius:12px}
+[data-theme="dark"]{--bg:#1c1c1e;--card:#2c2c2e;--text:#f5f5f7;--text2:#98989d;--border:#3a3a3c}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
+.header{position:sticky;top:0;z-index:100;background:var(--card);border-bottom:1px solid var(--border);padding:12px 16px}
+.header-top{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.search-box{flex:1;min-width:200px;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg);color:var(--text)}
+.btn{padding:6px 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);cursor:pointer;font-size:13px;white-space:nowrap}
+.btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-icon{padding:6px 10px}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.chip{padding:4px 10px;border-radius:16px;font-size:12px;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--text);transition:.2s}
+.chip.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.members-bar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
+.member-tag{display:flex;align-items:center;gap:4px;padding:3px 8px;border-radius:12px;font-size:12px;background:#e8f0fe;color:var(--accent)}
+.member-tag .rm{cursor:pointer;opacity:.6}
+.member-tag .rm:hover{opacity:1}
+.add-member{padding:3px 8px;border-radius:12px;font-size:12px;border:1px dashed var(--accent);background:transparent;color:var(--accent);cursor:pointer}
+.stats{display:flex;gap:12px;padding:8px 16px;font-size:12px;color:var(--text2);flex-wrap:wrap}
+.main{padding:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;transition:.2s}
+.card:hover{box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.card.hidden{display:none}
+.card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px}
+.card-title{font-size:15px;font-weight:600}
+.card-title-en{font-size:12px;color:var(--text2);margin-top:2px}
+.card-badges{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px}
+.badge{font-size:11px;padding:2px 6px;border-radius:4px}
+.badge-cat{background:#e8f0fe;color:#1a73e8}
+[data-theme="dark"] .badge-cat{background:#1a3a5c;color:#8ab4f8}
+.badge-pri-red{background:#ffe5e5;color:var(--red)}
+.badge-pri-yellow{background:#fff8e1;color:#f57c00}
+.badge-pri-white{background:#f0f0f0;color:#666}
+[data-theme="dark"] .badge-pri-white{background:#3a3a3c;color:#999}
+.badge-time{background:#f0f0f0;color:#555}
+[data-theme="dark"] .badge-time{background:#3a3a3c;color:#bbb}
+.badge-district{background:#e8f5e9;color:#2e7d32}
+[data-theme="dark"] .badge-district{background:#1b3a1b;color:#81c784}
+.card-info{font-size:13px;color:var(--text2);margin-bottom:4px}
+.card-notes{font-size:12px;color:var(--accent);font-style:italic;margin-top:4px}
+.card-desc{font-size:13px;margin-top:4px}
+.votes{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}
+.vote-btn{padding:3px 8px;border-radius:6px;font-size:11px;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text2);transition:.15s}
+.vote-btn.voted{font-weight:600}
+.vote-btn.v-yes{background:#d4edda;color:#155724;border-color:#c3e6cb}
+.vote-btn.v-no{background:#f8d7da;color:#721c24;border-color:#f5c6cb}
+.vote-btn.v-maybe{background:#fff3cd;color:#856404;border-color:#ffeeba}
+[data-theme="dark"] .vote-btn.v-yes{background:#1b4332;color:#95d5b2;border-color:#2d6a4f}
+[data-theme="dark"] .vote-btn.v-no{background:#4a1c1c;color:#f5a3a3;border-color:#6b2c2c}
+[data-theme="dark"] .vote-btn.v-maybe{background:#4a3f1c;color:#f5d98a;border-color:#6b5a2c}
+.voter-name{font-size:10px;color:var(--text2);margin-right:2px}
+.votes-summary{margin-top:6px;padding-top:6px;border-top:1px solid var(--border);font-size:11px;color:var(--text2)}
+.summary-bar{display:flex;gap:8px;align-items:center}
+.summary-bar span{display:flex;align-items:center;gap:2px}
+.district-view .district-group{margin-bottom:20px}
+.district-title{font-size:16px;font-weight:600;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid var(--accent)}
+.export-bar{position:fixed;bottom:16px;right:16px;z-index:99}
+.export-btn{padding:10px 20px;border-radius:20px;background:var(--accent);color:#fff;border:none;font-size:14px;cursor:pointer;box-shadow:0 2px 8px rgba(0,113,227,.3)}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:var(--card);border-radius:var(--radius);padding:20px;width:90%;max-width:360px}
+.modal h3{margin-bottom:12px;font-size:16px}
+.modal input{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;margin-bottom:12px;background:var(--bg);color:var(--text)}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end}
+.toast{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);padding:8px 16px;border-radius:8px;background:#333;color:#fff;font-size:13px;z-index:300;opacity:0;transition:.3s}
+.toast.show{opacity:1}
+@media(max-width:600px){.grid{grid-template-columns:1fr}.header{padding:8px 12px}.main{padding:12px}}
+</style>
+</head>
+<body>
+<div class="header">
+<div class="header-top">
+<input class="search-box" id="search" placeholder="🔍 搜索景点、餐厅、咖啡厅...">
+<button class="btn btn-icon" id="themeBtn" onclick="toggleTheme()">🌙</button>
+<button class="btn btn-icon" id="langBtn" onclick="toggleLang()">EN</button>
+<button class="btn btn-icon" id="viewBtn" onclick="toggleView()">📍</button>
+</div>
+<div class="filters" id="filters"></div>
+<div class="members-bar" id="membersBar">
+<span style="font-size:12px;color:var(--text2)">同行人员:</span>
+<div id="memberTags"></div>
+<button class="add-member" onclick="showAddMember()">+ 添加</button>
+</div>
+</div>
+<div class="stats" id="stats"></div>
+<div class="main">
+<div class="grid" id="grid"></div>
+<div class="district-view hidden" id="districtView"></div>
+</div>
+<div class="export-bar">
+<button class="export-btn" onclick="exportResults()">📋 导出结果</button>
+</div>
+<div class="modal-overlay" id="modal">
+<div class="modal">
+<h3 id="modalTitle">添加同行人员</h3>
+<input id="memberInput" placeholder="输入名字" onkeydown="if(event.key==='Enter')addMember()">
+<div class="modal-btns">
+<button class="btn" onclick="hideModal()">取消</button>
+<button class="btn active" onclick="addMember()">确定</button>
+</div>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const CATS=[
+{id:"culture",zh:"文化·历史·地标",en:"Culture & History",icon:"🏛️"},
+{id:"market",zh:"市场·购物",en:"Markets & Shopping",icon:"🛒"},
+{id:"cafe",zh:"咖啡厅·甜品",en:"Cafés & Desserts",icon:"☕"},
+{id:"food",zh:"越南菜·本地美食",en:"Vietnamese Food",icon:"🍜"},
+{id:"nightlife",zh:"酒吧·夜生活",en:"Nightlife & Bars",icon:"🍸"},
+{id:"daytrip",zh:"周边一日游·体验",en:"Day Trips & Activities",icon:"🏞️"},
+{id:"spa",zh:"按摩·SPA",en:"Massage & SPA",icon:"💆"},
+{id:"hotel",zh:"住宿参考",en:"Hotels",icon:"🏨"}
+];
+
+const ITEMS=[
+{id:1,name:"地标塔81观景台",nameEn:"Landmark 81 SkyView",cat:"culture",pri:"red",time:["afternoon","night"],district:"Bình Thạnh",hours:"9:00-21:30",notes:"越南第一高楼461米，360°俯瞰全城+西贡河日落",notesEn:"Vietnam's tallest building, 360° city view + sunset over Saigon River",desc:"就在你们住的Vinhomes对面步行5分钟"},
+{id:2,name:"粉红教堂",nameEn:"Tân Định Church",cat:"culture",pri:"red",time:["morning"],district:"第三郡",hours:"周一-周六 8:00-17:00",notes:"全粉色外观超上镜，小红书C位打卡",notesEn:"All-pink exterior, top Instagram spot in HCMC",desc:"对面Cộng Cafe二楼可远眺，清晨光线最佳"},
+{id:3,name:"红教堂",nameEn:"Notre-Dame Cathedral",cat:"culture",pri:"yellow",time:["morning","afternoon"],district:"第一郡",hours:"外观全天；内部 8:00-16:00",notes:"法国进口红砖，圣母玛利亚雕像广场",notesEn:"French imported red bricks, Virgin Mary statue",desc:"正面整修中但外观仍值得"},
+{id:4,name:"中央邮局",nameEn:"Central Post Office",cat:"culture",pri:"red",time:["morning","afternoon"],district:"第一郡",hours:"周一-周五 7:00-19:00",notes:"全球最美邮局之一，可寄明信片回中国",notesEn:"One of the world's most beautiful post offices",desc:"与红教堂一街之隔"},
+{id:5,name:"统一宫",nameEn:"Independence Palace",cat:"culture",pri:"yellow",time:["morning","afternoon"],district:"第一郡",hours:"7:30-11:00 / 13:00-16:00",notes:"100个厅堂+地下室指挥中心",notesEn:"100 halls + underground command center",desc:"距邮局步行10分钟"},
+{id:6,name:"战争遗迹博物馆",nameEn:"War Remnants Museum",cat:"culture",pri:"red",time:["morning"],district:"第一郡",hours:"7:30-17:00",notes:"震撼教育级别，退役战机组+战地照片",notesEn:"Shocking educational level, retired aircraft + war photos",desc:"上午购票午休后可再入"},
+{id:7,name:"西贡歌剧院",nameEn:"Saigon Opera House",cat:"culture",pri:"yellow",time:["night"],district:"第一郡",hours:"外观全天；A O Show 18:00",notes:"靛蓝屋顶+沙白外墙，可看A O Show",notesEn:"Indigo roof + white walls, watch A O Show",desc:"提前订票"},
+{id:8,name:"市政厅",nameEn:"People's Committee Hall",cat:"culture",pri:"white",time:["afternoon","night"],district:"第一郡",hours:"仅外观，全天可拍",notes:"文艺复兴法式建筑，雕刻细节满满",notesEn:"Renaissance French architecture, intricate carvings",desc:"阮惠步行街尽头"},
+{id:9,name:"美术馆",nameEn:"Fine Arts Museum",cat:"culture",pri:"yellow",time:["morning","afternoon"],district:"第一郡",hours:"9:00-17:00（周一闭馆）",notes:"超好拍，每个角落都能出大片",notesEn:"Super photogenic, every corner is picture-perfect",desc:"有越南国宝磨漆画"},
+{id:10,name:"历史博物馆",nameEn:"History Museum",cat:"culture",pri:"white",time:["morning","afternoon"],district:"第三郡",hours:"8:00-17:00",notes:"法式建筑本身值得看，展品涵盖各朝代",notesEn:"French building itself worth seeing",desc:"周一闭馆"},
+{id:11,name:"玉皇殿",nameEn:"Jade Emperor Pagoda",cat:"culture",pri:"yellow",time:["morning"],district:"第三郡",hours:"7:00-18:00",notes:"精美木雕+陶瓷装饰，奥巴马也去过",notesEn:"Exquisite wood carvings + ceramics, Obama visited",desc:"小众但口碑极高"},
+{id:12,name:"永严寺",nameEn:"Vinh Nghiem Pagoda",cat:"culture",pri:"white",time:["morning"],district:"Bình Thạnh",hours:"6:00-18:00",notes:"七层宝塔标志性建筑，融合日本建筑风格",notesEn:"7-story pagoda, Japanese architectural influence",desc:"清晨去最有氛围"},
+{id:13,name:"天后宫",nameEn:"Thiên Hậu Temple",cat:"culture",pri:"yellow",time:["morning","afternoon"],district:"第五郡",hours:"6:00-17:30",notes:"华人区最古老庙宇，供奉妈祖",notesEn:"Oldest temple in Chinatown, Mazu worship",desc:"第五郡华人区"},
+{id:14,name:"马里安曼印度庙",nameEn:"Mariamman Hindu Temple",cat:"culture",pri:"white",time:["morning","afternoon"],district:"第一郡",hours:"7:00-19:00",notes:"越南罕见印度教寺庙",notesEn:"Rare Hindu temple in Vietnam",desc:"槟城市场步行5分钟"},
+{id:15,name:"阮惠步行街",nameEn:"Nguyễn Huệ Walking Street",cat:"culture",pri:"yellow",time:["afternoon","night"],district:"第一郡",hours:"全天（傍晚夜晚最热闹）",notes:"胡志明雕像+市政厅，夜晚有音乐喷泉",notesEn:"Statue + City Hall, night music fountain",desc:"咖啡公寓在这条街上"},
+{id:16,name:"滨城市场",nameEn:"Ben Thanh Market",cat:"market",pri:"red",time:["morning","afternoon"],district:"第一郡",hours:"白天 6:00-18:00；夜市 18:00-22:00",notes:"1600+摊位，服饰/手工艺/伴手礼",notesEn:"1600+ stalls, clothing/crafts/souvenirs",desc:"一定要杀价！门口对面可换汇"},
+{id:17,name:"安东市场",nameEn:"An Đông Market",cat:"market",pri:"yellow",time:["morning"],district:"第五郡",hours:"7:00-18:00",notes:"华人区批发市场，价格比滨城便宜",notesEn:"Chinatown wholesale market, cheaper than Ben Thanh",desc:"土特产伴手礼采购好去处"},
+{id:18,name:"Saigon Centre",nameEn:"Saigon Centre",cat:"market",pri:"white",time:["afternoon"],district:"第一郡",hours:"9:30-22:00",notes:"人气商场+人气咖啡厅",notesEn:"Popular mall + popular cafés",desc:"逛街购物一站式"},
+{id:19,name:"Diamond Plaza",nameEn:"Diamond Plaza",cat:"market",pri:"white",time:["afternoon"],district:"第一郡",hours:"9:30-22:00",notes:"集购物、餐饮、娱乐一体",notesEn:"Shopping, dining, entertainment in one",desc:"B1有美食区，近红教堂"},
+{id:20,name:"Saigon Square",nameEn:"Saigon Square",cat:"market",pri:"white",time:["morning","afternoon"],district:"第一郡",hours:"8:00-20:00",notes:"仿牌衣物鞋子集中地",notesEn:"Copy-brand clothing and shoes hub",desc:"价格便宜需杀价，注意质量参差"},
+{id:21,name:"Vincom Center",nameEn:"Vincom Center",cat:"market",pri:"white",time:["afternoon"],district:"第一郡",hours:"9:00-22:00",notes:"品牌齐全，空调舒适",notesEn:"Full brand range, air-conditioned comfort",desc:"阮惠步行街旁，适合炎热天气"},
+{id:22,name:"Union Square",nameEn:"Union Square",cat:"market",pri:"white",time:["afternoon"],district:"第一郡",hours:"9:30-22:00",notes:"国际大牌+越南本土设计师品牌",notesEn:"International brands + Vietnamese designers",desc:"价格偏高"},
+{id:23,name:"Takashimaya",nameEn:"Takashimaya",cat:"market",pri:"white",time:["afternoon"],district:"第一郡",hours:"9:30-21:30",notes:"日系百货，B2美食层值得一逛",notesEn:"Japanese department store, B2 food floor",desc:"Saigon Centre内"},
+{id:24,name:"Vincom Landmark 81",nameEn:"Vincom Landmark 81",cat:"market",pri:"white",time:["afternoon","night"],district:"Bình Thạnh",hours:"9:30-22:00",notes:"你们住处楼下/对面",notesEn:"Downstairs/across from your hotel",desc:"买东西吃饭最方便"},
+{id:25,name:"书街",nameEn:"Book Street",cat:"market",pri:"yellow",time:["afternoon"],district:"第一郡",hours:"8:00-21:00",notes:"文青最爱，两侧书店+咖啡厅+文创小物",notesEn:"Book lovers' paradise, bookshops + cafés + crafts",desc:"买明信片/文创伴手礼"},
+{id:26,name:"咖啡公寓",nameEn:"The Cafe Apartment",cat:"cafe",pri:"red",time:["afternoon","night"],district:"第一郡",hours:"各店铺不一，一般 8:00-22:00",notes:"10层楼咖啡/文创公寓楼，外墙一格格超上镜",notesEn:"10-story café/apartment building, grid facade is iconic",desc:"电梯费5000越南盾，从10楼往下逛"},
+{id:27,name:"Cộng Cafe",nameEn:"Cộng Cafe",cat:"cafe",pri:"red",time:["morning","afternoon"],district:"第三郡",hours:"7:00-22:30",notes:"越南椰子咖啡连锁，粉红教堂对面",notesEn:"Vietnamese coconut coffee chain, opposite Pink Church",desc:"椰子咖啡是招牌，二楼可远眺教堂"},
+{id:28,name:"The Coffee House Signature",nameEn:"The Coffee House Signature",cat:"cafe",pri:"yellow",time:["morning","afternoon"],district:"第一郡",hours:"7:00-22:00",notes:"越南版星巴克升级版，环境设计感强",notesEn:"Vietnam's Starbucks upgrade, great design",desc:"多家分店"},
+{id:29,name:"Highland Coffee",nameEn:"Highland Coffee",cat:"cafe",pri:"white",time:["morning","afternoon","night"],district:"第一郡",hours:"7:00-23:00",notes:"越南最大连锁咖啡，便宜好喝",notesEn:"Vietnam's largest coffee chain, cheap and good",desc:"随处可见不用特地找"},
+{id:30,name:"Kampong Roaster Coffee",nameEn:"Kampong Roaster Coffee",cat:"cafe",pri:"white",time:["afternoon"],district:"第三郡",hours:"8:00-22:00",notes:"木质+砖墙工业风，自烘豆品质高",notesEn:"Wood + brick industrial style, quality roasts",desc:"拍照好看"},
+{id:31,name:"Miwako Coffee",nameEn:"Miwako Coffee",cat:"cafe",pri:"white",time:["afternoon"],district:"第三郡",hours:"8:00-22:00",notes:"超可爱日系咖啡厅，饮品和甜品都很精致",notesEn:"Super cute Japanese café,精致 drinks & desserts",desc:"两家分店"},
+{id:32,name:"Meow Meow Coffee",nameEn:"Meow Meow Coffee",cat:"cafe",pri:"white",time:["afternoon"],district:"第三郡",hours:"9:00-21:00",notes:"猫咪主题咖啡，撸猫+咖啡",notesEn:"Cat-themed café, cats + coffee",desc:"有猫！适合猫控"},
+{id:33,name:"Nấp Saigon",nameEn:"Nấp Saigon",cat:"cafe",pri:"yellow",time:["afternoon"],district:"第三郡",hours:"8:00-22:00",notes:"隐巷风格，安静有调性，适合拍照发呆",notesEn:"Hidden alley style, quiet and photogenic",desc:"小众秘境感"},
+{id:34,name:"Chill Box",nameEn:"Chill Box",cat:"cafe",pri:"white",time:["afternoon"],district:"第一郡",hours:"9:00-22:00",notes:"网红甜品店，颜值高适合拍照",notesEn:"Trendy dessert shop, pretty and photogenic",desc:"适合下午茶"},
+{id:35,name:"Quán Ăn Ngon (Ngon 138)",nameEn:"Quán Ăn Ngon",cat:"food",pri:"red",time:["lunch","dinner"],district:"第一郡",hours:"7:00-22:00",notes:"一次吃遍越南各省代表性料理",notesEn:"Taste representative dishes from all Vietnamese regions",desc:"推荐河粉+春卷+甘蔗虾"},
+{id:36,name:"Secret Garden",nameEn:"Secret Garden",cat:"food",pri:"yellow",time:["lunch","dinner"],district:"第一郡",hours:"10:00-22:00",notes:"藏在顶楼的秘密花园，家常越南菜",notesEn:"Hidden rooftop secret garden, home-style Vietnamese",desc:"需要爬楼梯，氛围浪漫"},
+{id:37,name:"Phở Hòa Pasteur",nameEn:"Phở Hòa Pasteur",cat:"food",pri:"red",time:["morning","lunch"],district:"第一郡",hours:"6:00-22:00",notes:"交通方便+好吃，汤头鲜美",notesEn:"Convenient location + delicious, flavorful broth",desc:"早点去避免排队"},
+{id:38,name:"Bánh Mì Huỳnh Hoa",nameEn:"Bánh Mì Huỳnh Hoa",cat:"food",pri:"red",time:["morning","lunch"],district:"第一郡",hours:"5:30-22:00",notes:"胡志明市最好吃的法包，馅料超厚实",notesEn:"HCMC's best bánh mì, generously stuffed",desc:"槟城市场附近"},
+{id:39,name:"Bún Bò Huế An Nam",nameEn:"Bún Bò Huế An Nam",cat:"food",pri:"yellow",time:["lunch","dinner"],district:"第三郡",hours:"6:00-21:00",notes:"正宗中部口味，辣汤浓郁",notesEn:"Authentic central Vietnam flavor, spicy rich broth",desc:"比普通河粉更辣"},
+{id:40,name:"Mì Quảng Bếp Trảng",nameEn:"Mì Quảng Bếp Trảng",cat:"food",pri:"white",time:["lunch","dinner"],district:"第三郡",hours:"7:00-21:00",notes:"越南中部特色面，宽面条+花生",notesEn:"Central Vietnam specialty noodles, wide noodles + peanuts",desc:"小众但好评"},
+{id:41,name:"Cục Gạch Quán",nameEn:"Cục Gạch Quán",cat:"food",pri:"yellow",time:["lunch","dinner"],district:"第一郡",hours:"10:00-22:00",notes:"老宅改造餐厅，复古装饰",notesEn:"Old house converted restaurant, vintage décor",desc:"家庭式越南料理，环境很有特色"},
+{id:42,name:"Hoang Ty",nameEn:"Hoang Ty",cat:"food",pri:"white",time:["morning"],district:"第十郡",hours:"6:00-14:00",notes:"当地人早餐首选，便宜好吃的碎米饭",notesEn:"Local breakfast favorite, cheap delicious cơm tấm",desc:"当地人最爱"},
+{id:43,name:"Ben Nghe Street Food",nameEn:"Ben Nghe Street Food",cat:"food",pri:"yellow",time:["afternoon","night"],district:"第一郡",hours:"10:00-22:00",notes:"各种越南街头小吃集中",notesEn:"Various Vietnamese street food gathered",desc:"想吃街头小吃好去处"},
+{id:44,name:"Home Finest Saigon",nameEn:"Home Finest Saigon",cat:"food",pri:"yellow",time:["dinner"],district:"第一郡",hours:"11:00-22:00",notes:"环境优雅的越南菜fine dining",notesEn:"Elegant Vietnamese fine dining",desc:"适合群组聚餐，需预约"},
+{id:45,name:"Mùa Craft Eatery",nameEn:"Mùa Craft Eatery",cat:"food",pri:"white",time:["lunch","dinner"],district:"第一郡",hours:"10:00-22:00",notes:"创意越南菜+craft beer",notesEn:"Creative Vietnamese + craft beer",desc:"适合年轻人"},
+{id:46,name:"Chill Skybar",nameEn:"Chill Skybar",cat:"nightlife",pri:"red",time:["night"],district:"第一郡",hours:"17:00-2:00",notes:"胡志明市最知名skybar之一",notesEn:"One of HCMC's most famous skybars",desc:"Dress code，建议预约"},
+{id:47,name:"Saigon Saigon Rooftop Bar",nameEn:"Saigon Saigon Rooftop Bar",cat:"nightlife",pri:"yellow",time:["night"],district:"第一郡",hours:"16:00-0:00",notes:"Caravelle酒店顶楼，越战时期记者聚集地",notesEn:"Caravelle Hotel rooftop, war-era journalists' haunt",desc:"有历史故事"},
+{id:48,name:"Glow Skybar",nameEn:"Glow Skybar",cat:"nightlife",pri:"yellow",time:["night"],district:"第一郡",hours:"17:00-2:00",notes:"氛围轻松，价格比Chill友好",notesEn:"Relaxed atmosphere, friendlier prices than Chill",desc:"适合群组"},
+{id:49,name:"Penthouse Bistro & Skybar",nameEn:"Penthouse Bistro & Skybar",cat:"nightlife",pri:"white",time:["night"],district:"第一郡",hours:"11:00-0:00",notes:"夜景+餐饮一体",notesEn:"Night view + dining in one",desc:"营业到凌晨"},
+{id:50,name:"Envy Club",nameEn:"Envy Club",cat:"nightlife",pri:"yellow",time:["night"],district:"第一郡",hours:"22:00-4:00",notes:"胡志明市人气夜店",notesEn:"Popular HCMC nightclub",desc:"夜猫子首选"},
+{id:51,name:"Broma Not A Bar",nameEn:"Broma Not A Bar",cat:"nightlife",pri:"yellow",time:["night"],district:"第一郡",hours:"18:00-2:00",notes:"隐藏式酒吧风格，调酒创意",notesEn:"Hidden speakeasy style, creative cocktails",desc:"Speakeasy风格"},
+{id:52,name:"Mật Bia Craft Beer Saigon",nameEn:"Mật Bia Craft Beer Saigon",cat:"nightlife",pri:"white",time:["night"],district:"第一郡",hours:"16:00-0:00",notes:"越南精酿啤酒，种类多",notesEn:"Vietnamese craft beer, wide variety",desc:"精酿爱好者必去"},
+{id:53,name:"The Racha Room",nameEn:"The Racha Room",cat:"nightlife",pri:"white",time:["dinner","night"],district:"第一郡",hours:"17:00-0:00",notes:"东南亚fusion料理+创意调酒",notesEn:"SE Asian fusion + creative cocktails",desc:"环境时髦，需预约"},
+{id:54,name:"Bùi Viện Walking Street",nameEn:"Bùi Viện Walking Street",cat:"nightlife",pri:"red",time:["night"],district:"第一郡",hours:"全天（夜晚20:00后最嗨）",notes:"白天日式料理街，夜晚变身热闹酒吧区",notesEn:"Japanese food street by day, buzzing bar street by night",desc:"体验越南夜生活"},
+{id:55,name:"Phạm Ngũ Lão",nameEn:"Phạm Ngũ Lão",cat:"nightlife",pri:"yellow",time:["night"],district:"第一郡",hours:"全天（夜晚最热闹）",notes:"背包客天堂，酒吧/餐厅/夜市小吃集中",notesEn:"Backpacker heaven, bars/restaurants/street food",desc:"群组夜生活"},
+{id:56,name:"古芝地道",nameEn:"Cu Chi Tunnels",cat:"daytrip",pri:"red",time:["morning"],district:"周边",hours:"建议7:30出发-15:00回",notes:"250公里地下地道，可体验半蹲进入",notesEn:"250km underground tunnels, crouch-through experience",desc:"距市区1.5h车程"},
+{id:57,name:"湄公河三角洲一日游",nameEn:"Mekong Delta Day Trip",cat:"daytrip",pri:"red",time:["morning"],district:"周边",hours:"8:00出发-17:00返回",notes:"乘手摇船穿椰林，体验水上生活",notesEn:"Rowboat through coconut groves, floating life experience",desc:"距市区2h车程"},
+{id:58,name:"A O Show",nameEn:"A O Show",cat:"daytrip",pri:"yellow",time:["night"],district:"第一郡",hours:"18:00",notes:"越南版太阳马戏团，1小时了解越南文化",notesEn:"Vietnam's Cirque du Soleil, 1hr Vietnamese culture",desc:"西贡歌剧院内，提前订票"},
+{id:59,name:"水上木偶戏",nameEn:"Water Puppet Show",cat:"daytrip",pri:"yellow",time:["night"],district:"第一郡",hours:"18:30 / 20:00",notes:"越南传统表演，必看文化体验",notesEn:"Traditional Vietnamese performance, must-see",desc:"金龙剧院"},
+{id:60,name:"越南烹饪课",nameEn:"Cooking Class",cat:"daytrip",pri:"yellow",time:["morning","afternoon"],district:"第一郡",hours:"上午班 9:00-12:00；下午班 14:00-17:00",notes:"学做越南河粉春卷，逛市场选食材",notesEn:"Learn to make phở & spring rolls, market tour",desc:"适合群组"},
+{id:61,name:"西贡河夜游船",nameEn:"Saigon River Cruise",cat:"daytrip",pri:"yellow",time:["night"],district:"第一郡",hours:"18:00-21:00",notes:"越南料理+传统歌舞表演+西贡河夜景",notesEn:"Vietnamese dinner + traditional show + river night view",desc:"需预约"},
+{id:62,name:"Miumiu Spa (Branch 1)",nameEn:"Miumiu Spa (Branch 1)",cat:"spa",pri:"red",time:["afternoon","night"],district:"第一郡",hours:"10:00-23:00",notes:"小红书必去按摩，环境干净服务好",notesEn:"Must-visit massage, clean environment, great service",desc:"提前预约"},
+{id:63,name:"Miumiu Spa (Branch 2)",nameEn:"Miumiu Spa (Branch 2)",cat:"spa",pri:"red",time:["afternoon","night"],district:"第一郡",hours:"10:00-23:00",notes:"同上分店",notesEn:"Same chain, different branch",desc:"提前预约"},
+{id:64,name:"Sofia Suite Hotel & Spa",nameEn:"Sofia Suite Hotel & Spa",cat:"hotel",pri:"white",time:["morning","afternoon","night"],district:"Bình Thạnh",hours:"—",notes:"CP值高、早餐丰盛",notesEn:"Great value, abundant breakfast",desc:"你们已定住宿，仅供参考"},
+{id:65,name:"The Phuong Nam Hotel & Spa",nameEn:"The Phuong Nam Hotel & Spa",cat:"hotel",pri:"white",time:["morning","afternoon","night"],district:"第一郡",hours:"—",notes:"交通方便、早餐好吃",notesEn:"Convenient location, good breakfast",desc:"同上"},
+{id:66,name:"Morgan House Saigon",nameEn:"Morgan House Saigon",cat:"hotel",pri:"white",time:["morning","afternoon","night"],district:"第一郡",hours:"—",notes:"客房大、老上海风格设计感强",notesEn:"Large rooms, old Shanghai design style",desc:"同上"},
+{id:67,name:"Fusion Suites Saigon",nameEn:"Fusion Suites Saigon",cat:"hotel",pri:"white",time:["morning","afternoon","night"],district:"第一郡",hours:"—",notes:"房间大+含每日SPA",notesEn:"Large rooms + daily SPA included",desc:"同上"},
+{id:68,name:"Hôtel des Arts Saigon",nameEn:"Hôtel des Arts Saigon",cat:"hotel",pri:"white",time:["morning","afternoon","night"],district:"第一郡",hours:"—",notes:"高级感满满、无边泳池",notesEn:"Luxurious feel, infinity pool",desc:"同上"},
+{id:69,name:"Triip Secret Garden",nameEn:"Triip Secret Garden",cat:"hotel",pri:"white",time:["morning","afternoon","night"],district:"第一郡",hours:"—",notes:"顶楼秘密花园，氛围独特",notesEn:"Rooftop secret garden, unique atmosphere",desc:"同上"}
+];
+
+const PRI={red:{zh:"必去",en:"Must-see"},yellow:{zh:"推荐",en:"Recommended"},white:{zh:"可选",en:"Optional"}};
+const TIME_ICONS={morning:{zh:"🌅晨",en:"🌅AM"},afternoon:{zh:"☀️午",en:"☀️PM"},evening:{zh:"🌆晚",en:"🌆Eve"},night:{zh:"🌙夜",en:"🌙Night"},lunch:{zh:"🍽️午",en:"🍽️Lunch"},dinner:{zh:"🍽️晚",en:"🍽️Dinner"}};
+
+let lang=localStorage.getItem("v3_lang")||"zh";
+let members=JSON.parse(localStorage.getItem("v3_members")||"[]");
+let votes=JSON.parse(localStorage.getItem("v3_votes")||"{}");
+let activeCats=new Set();
+let searchTerm="";
+let viewMode="card";
+let isDark=false;
+
+function save(){localStorage.setItem("v3_lang",lang);localStorage.setItem("v3_members",JSON.stringify(members));localStorage.setItem("v3_votes",JSON.stringify(votes))}
+
+function t(zh,en){return lang==="en"?en:zh}
+
+function renderFilters(){
+const el=document.getElementById("filters");
+el.innerHTML=CATS.map(c=>`<span class="chip ${activeCats.has(c.id)?"active":""}" onclick="toggleCat('${c.id}')">${c.icon} ${t(c.zh,c.en)}</span>`).join("");
+}
+
+function renderMembers(){
+const el=document.getElementById("memberTags");
+el.innerHTML=members.map(m=>`<span class="member-tag">${m}<span class="rm" onclick="removeMember('${m}')">×</span></span>`).join("");
+}
+
+function renderCards(){
+const grid=document.getElementById("grid");
+const dview=document.getElementById("districtView");
+const q=searchTerm.toLowerCase();
+const filtered=ITEMS.filter(it=>{
+if(activeCats.size&&!activeCats.has(it.cat))return false;
+if(q&&!it.name.toLowerCase().includes(q)&&!it.nameEn.toLowerCase().includes(q)&&!it.notes.toLowerCase().includes(q)&&!it.notesEn.toLowerCase().includes(q)&&!it.district.toLowerCase().includes(q))return false;
+return true;
+});
+
+const priOrder={red:0,yellow:1,white:2};
+filtered.sort((a,b)=>priOrder[a.pri]-priOrder[b.pri]);
+
+const cat=CATS.find(c=>c.id===filtered[0]?.cat);
+const catCounts={};
+filtered.forEach(it=>{catCounts[it.cat]=(catCounts[it.cat]||0)+1});
+
+document.getElementById("stats").innerHTML=`<span>${filtered.length} / ${ITEMS.length} 项</span>`+
+CATS.filter(c=>catCounts[c.id]).map(c=>`<span>${c.icon}${t(c.zh,c.en)}: ${catCounts[c.id]}</span>`).join("");
+
+function cardHtml(it){
+const catObj=CATS.find(c=>c.id===it.cat);
+const timeTags=it.time.map(t=>TIME_ICONS[t]||t).join(" ");
+const votesForItem=votes[it.id]||{};
+const vSummary={yes:0,no:0,maybe:0};
+members.forEach(m=>{if(votesForItem[m]==="yes")vSummary.yes++;if(votesForItem[m]==="no")vSummary.no++;if(votesForItem[m]==="maybe")vSummary.maybe++});
+const voterHtml=members.map(m=>{
+const v=votesForItem[m]||"";
+return `<span class="voter-name">${m}</span>
+<button class="vote-btn ${v==="yes"?"voted v-yes":""}${v==="no"?"voted v-no":""}${v==="maybe"?"voted v-maybe":""}" onclick="vote(${it.id},'${m}','yes')">✅</button>
+<button class="vote-btn ${v==="no"?"voted v-no":""}" onclick="vote(${it.id},'${m}','no')">❌</button>
+<button class="vote-btn ${v==="maybe"?"voted v-maybe":""}" onclick="vote(${it.id},'${m}','maybe')">⏳</button>`;
+}).join("");
+
+return `<div class="card" data-id="${it.id}">
+<div class="card-head">
+<div><div class="card-title">${it.name}</div><div class="card-title-en">${it.nameEn}</div></div>
+</div>
+<div class="card-badges">
+<span class="badge badge-cat">${catObj.icon} ${t(catObj.zh,catObj.en)}</span>
+<span class="badge badge-pri-${it.pri}">${PRI[it.pri][lang==="en"?"en":"zh"]}</span>
+${it.time.map(ti=>`<span class="badge badge-time">${TIME_ICONS[ti]||ti}</span>`).join("")}
+<span class="badge badge-district">📍 ${it.district}</span>
+</div>
+<div class="card-info">🕐 ${it.hours}</div>
+<div class="card-desc">${lang==="en"?it.notesEn:it.notes}</div>
+${it.desc?`<div class="card-notes">${lang==="en"?"":"💡 "}${it.desc}</div>`:""}
+${members.length?`<div class="votes">${voterHtml}</div>
+<div class="votes-summary">
+<div class="summary-bar">
+<span>✅ ${vSummary.yes}</span><span>❌ ${vSummary.no}</span><span>⏳ ${vSummary.maybe}</span>
+</div></div>`:""}
+</div>`;
+}
+
+if(viewMode==="card"){
+grid.classList.remove("hidden");
+dview.classList.add("hidden");
+grid.innerHTML=filtered.map(cardHtml).join("");
+}else{
+grid.classList.add("hidden");
+dview.classList.remove("hidden");
+const groups={};
+filtered.forEach(it=>{if(!groups[it.district])groups[it.district]=[];groups[it.district].push(it)});
+const order=["第一郡","第三郡","第五郡","Bình Thạnh","第十郡","周边"];
+dview.innerHTML=order.filter(d=>groups[d]).map(d=>`<div class="district-group"><div class="district-title">📍 ${d} (${groups[d].length})</div><div class="grid">${groups[d].map(cardHtml).join("")}</div></div>`).join("");
+}
+}
+
+function toggleCat(id){if(activeCats.has(id))activeCats.delete(id);else activeCats.add(id);renderFilters();renderCards()}
+function toggleLang(){lang=lang==="zh"?"en":"zh";document.getElementById("langBtn").textContent=lang==="zh"?"EN":"中";save();renderFilters();renderCards()}
+function toggleView(){viewMode=viewMode==="card"?"district":"card";document.getElementById("viewBtn").textContent=viewMode==="card"?"📍":"📋";renderCards()}
+function toggleTheme(){isDark=!isDark;document.documentElement.setAttribute("data-theme",isDark?"dark":"");document.getElementById("themeBtn").textContent=isDark?"☀️":"🌙";localStorage.setItem("v3_theme",isDark?"dark":"")}
+
+document.getElementById("search").addEventListener("input",e=>{searchTerm=e.target.value;renderCards()});
+
+function vote(itemId,member,value){
+if(!votes[itemId])votes[itemId]={};
+const cur=votes[itemId][member];
+votes[itemId][member]=cur===value?"":value;
+save();renderCards();
+}
+
+function showAddMember(){document.getElementById("modal").classList.add("show");document.getElementById("memberInput").focus()}
+function hideModal(){document.getElementById("modal").classList.remove("show");document.getElementById("memberInput").value=""}
+function addMember(){
+const name=document.getElementById("memberInput").value.trim();
+if(!name)return;
+if(!members.includes(name)){members.push(name);save();renderMembers();renderCards()}
+hideModal();
+}
+function removeMember(name){members=members.filter(m=>m!==name);save();renderMembers();renderCards()}
+
+function exportResults(){
+const lines=[`胡志明市旅行攻略 - 投票结果 / HCMC Travel Guide - Voting Results`,`日期: ${new Date().toLocaleDateString()}`,``];
+if(members.length){
+lines.push(`同行人员: ${members.join(", ")}`,``);
+const summary={};
+members.forEach(m=>{summary[m]={yes:[],no:[],maybe:[]}});
+ITEMS.forEach(it=>{
+const v=votes[it.id]||{};
+members.forEach(m=>{
+if(v[m]==="yes")summary[m].yes.push(it.name);
+if(v[m]==="no")summary[m].no.push(it.name);
+if(v[m]==="maybe")summary[m].maybe.push(it.name);
+});
+});
+members.forEach(m=>{
+lines.push(`【${m}】`);
+lines.push(`  ✅ 去: ${summary[m].yes.length?summary[m].yes.join(", "):(lang==="zh"?"无":"None")}`);
+lines.push(`  ❌ 不去: ${summary[m].no.length?summary[m].no.join(", "):(lang==="zh"?"无":"None")}`);
+lines.push(`  ⏳ 待定: ${summary[m].maybe.length?summary[m].maybe.join(", "):(lang==="zh"?"无":"None")}`);
+lines.push(``);
+});
+lines.push(`共识去: ${ITEMS.filter(it=>members.every(m=>(votes[it.id]||{})[m]==="yes")).map(it=>it.name).join(", ")||"(无)"}`);
+lines.push(`共识不去: ${ITEMS.filter(it=>members.every(m=>(votes[it.id]||{})[m]==="no")).map(it=>it.name).join(", ")||"(无)"}`);
+}else{
+lines.push("(未添加同行人员，无投票数据)");
+}
+const text=lines.join("\n");
+navigator.clipboard.writeText(text).then(()=>showToast("已复制到剪贴板！")).catch(()=>showToast("复制失败，请手动复制"));
+}
+
+function showToast(msg){const el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2000)}
+
+// Init
+if(localStorage.getItem("v3_theme")==="dark"){isDark=true;document.documentElement.setAttribute("data-theme","dark");document.getElementById("themeBtn").textContent="☀️"}
+if(lang==="en")document.getElementById("langBtn").textContent="中";
+renderFilters();renderMembers();renderCards();
+</script>
+</body>
+</html>

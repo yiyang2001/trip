@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>胡志明市旅行攻略 Pro | HCMC Travel Guide Pro</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#f0f2f5;--card:rgba(255,255,255,.85);--card-solid:#fff;--text:#1d1d1f;--text2:#6e6e73;--accent:#0071e3;--accent2:#5856d6;--border:rgba(0,0,0,.08);--red:#ff3b30;--orange:#ff9500;--yellow:#ffcc00;--green:#34c759;--purple:#af52de;--radius:16px;--shadow:0 4px 24px rgba(0,0,0,.06);--glass:rgba(255,255,255,.7)}
+[data-theme="dark"]{--bg:#000;--card:rgba(28,28,30,.85);--card-solid:#1c1c1e;--text:#f5f5f7;--text2:#98989d;--border:rgba(255,255,255,.1);--shadow:0 4px 24px rgba(0,0,0,.3);--glass:rgba(28,28,30,.7)}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;min-height:100vh}
+body::before{content:"";position:fixed;inset:0;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);opacity:.03;z-index:-1}
+
+.header{position:sticky;top:0;z-index:100;background:var(--glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:12px 20px}
+.header-top{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.logo{font-size:18px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-right:8px}
+.search-box{flex:1;min-width:180px;padding:10px 14px;border:1px solid var(--border);border-radius:12px;font-size:14px;background:var(--bg);color:var(--text);transition:.2s}
+.search-box:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,113,227,.15)}
+.icon-btn{width:36px;height:36px;border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--text);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:.2s}
+.icon-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.icon-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.toolbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.chip{padding:6px 12px;border-radius:20px;font-size:12px;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--text);transition:.2s;user-select:none}
+.chip:hover{border-color:var(--accent)}
+.chip.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.chip .count{margin-left:4px;opacity:.7}
+.sort-btn{padding:6px 12px;border-radius:20px;font-size:12px;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--text2);transition:.2s}
+.sort-btn.active{background:var(--accent2);color:#fff;border-color:var(--accent2)}
+.members-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.member-tag{display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:14px;font-size:12px;background:linear-gradient(135deg,#e8f0fe,#f0e6ff);color:var(--accent);font-weight:500}
+.member-tag .rm{cursor:pointer;opacity:.5;font-size:14px}
+.member-tag .rm:hover{opacity:1}
+.add-member{padding:4px 10px;border-radius:14px;font-size:12px;border:1px dashed var(--accent);background:transparent;color:var(--accent);cursor:pointer;transition:.2s}
+.add-member:hover{background:var(--accent);color:#fff}
+
+.stats-bar{display:flex;gap:16px;padding:12px 20px;font-size:12px;color:var(--text2);flex-wrap:wrap;align-items:center}
+.stat-item{display:flex;align-items:center;gap:4px}
+.stat-dot{width:8px;height:8px;border-radius:50%}
+
+.main{padding:16px 20px}
+.tabs{display:flex;gap:4px;margin-bottom:16px;background:var(--card);border-radius:12px;padding:4px;border:1px solid var(--border)}
+.tab{flex:1;padding:10px;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;text-align:center;transition:.2s;color:var(--text2)}
+.tab:hover{background:var(--bg)}
+.tab.active{background:var(--accent);color:#fff}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px}
+.card{background:var(--card-solid);border:1px solid var(--border);border-radius:var(--radius);padding:16px;transition:all .25s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));opacity:0;transition:.3s}
+.card:hover{box-shadow:var(--shadow);transform:translateY(-2px)}
+.card:hover::before{opacity:1}
+.hidden{display:none!important}
+.card.hidden{display:none}
+.card-star{position:absolute;top:12px;right:12px;font-size:18px;cursor:pointer;opacity:.3;transition:.2s}
+.card-star:hover,.card-star.starred{opacity:1}
+.card-head{margin-bottom:8px}
+.card-title{font-size:16px;font-weight:600}
+.card-title-en{font-size:12px;color:var(--text2);margin-top:2px}
+.card-badges{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}
+.badge{font-size:11px;padding:3px 8px;border-radius:6px;font-weight:500}
+.badge-cat{background:#e8f0fe;color:#1a73e8}
+[data-theme="dark"] .badge-cat{background:#1a3a5c;color:#8ab4f8}
+.badge-pri-red{background:#ffe5e5;color:var(--red)}
+.badge-pri-yellow{background:#fff8e1;color:#f57c00}
+.badge-pri-white{background:#f0f0f0;color:#666}
+[data-theme="dark"] .badge-pri-white{background:#3a3a3c;color:#999}
+.badge-time{background:#f0f0f0;color:#555}
+[data-theme="dark"] .badge-time{background:#3a3a3c;color:#bbb}
+.badge-district{background:#e8f5e9;color:#2e7d32}
+[data-theme="dark"] .badge-district{background:#1b3a1b;color:#81c784}
+.badge-price{background:#fff3e0;color:#e65100}
+[data-theme="dark"] .badge-price{background:#3d2a00;color:#ffb74d}
+.card-info{font-size:13px;color:var(--text2);margin-bottom:4px;display:flex;align-items:center;gap:4px}
+.card-desc{font-size:13px;margin-top:6px}
+.card-notes{font-size:12px;color:var(--accent);font-style:italic;margin-top:4px}
+.card-actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.vote-btn{padding:4px 10px;border-radius:8px;font-size:12px;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text2);transition:.15s}
+.vote-btn.voted{font-weight:600}
+.vote-btn.v-yes{background:#d4edda;color:#155724;border-color:#c3e6cb}
+.vote-btn.v-no{background:#f8d7da;color:#721c24;border-color:#f5c6cb}
+.vote-btn.v-maybe{background:#fff3cd;color:#856404;border-color:#ffeeba}
+[data-theme="dark"] .vote-btn.v-yes{background:#1b4332;color:#95d5b2;border-color:#2d6a4f}
+[data-theme="dark"] .vote-btn.v-no{background:#4a1c1c;color:#f5a3a3;border-color:#6b2c2c}
+[data-theme="dark"] .vote-btn.v-maybe{background:#4a3f1c;color:#f5d98a;border-color:#6b5a2c}
+.voter-label{font-size:10px;color:var(--text2);font-weight:500}
+.day-select{padding:3px 6px;border-radius:6px;font-size:11px;border:1px solid var(--border);background:var(--bg);color:var(--text);cursor:pointer}
+.note-input{width:100%;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px;margin-top:6px;background:var(--bg);color:var(--text);resize:none}
+.note-input:focus{outline:none;border-color:var(--accent)}
+.votes-summary{margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:11px;color:var(--text2)}
+.summary-bar{display:flex;gap:10px;align-items:center}
+.summary-bar span{display:flex;align-items:center;gap:3px}
+
+.district-view .district-group{margin-bottom:24px}
+.district-title{font-size:18px;font-weight:700;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid var(--accent);display:flex;align-items:center;gap:8px}
+.district-count{font-size:13px;font-weight:400;color:var(--text2)}
+
+.day-view .day-column{margin-bottom:24px}
+.day-header{font-size:18px;font-weight:700;margin-bottom:12px;padding:12px 16px;border-radius:var(--radius);background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;display:flex;justify-content:space-between;align-items:center}
+.day-header .day-stats{font-size:12px;opacity:.8}
+.day-items{min-height:60px;border:2px dashed var(--border);border-radius:var(--radius);padding:8px;transition:.2s}
+.day-items.dragover{border-color:var(--accent);background:rgba(0,113,227,.05)}
+.day-placeholder{padding:20px;text-align:center;color:var(--text2);font-size:13px}
+.day-item{background:var(--card-solid);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:6px;cursor:grab;display:flex;justify-content:space-between;align-items:center;transition:.2s}
+.day-item:hover{box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.day-item.dragging{opacity:.5}
+.day-item-name{font-size:13px;font-weight:500}
+.day-item-meta{font-size:11px;color:var(--text2)}
+.day-item-remove{cursor:pointer;color:var(--red);opacity:.5;font-size:16px}
+.day-item-remove:hover{opacity:1}
+
+.stats-panel{background:var(--card-solid);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.stats-title{font-size:16px;font-weight:600;margin-bottom:16px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.stats-card{background:var(--bg);border-radius:12px;padding:16px}
+.stats-card-title{font-size:12px;color:var(--text2);margin-bottom:8px}
+.stats-card-value{font-size:24px;font-weight:700}
+.stats-bar-chart{margin-top:8px}
+.stats-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.stats-bar-label{font-size:12px;width:80px;text-align:right;color:var(--text2)}
+.stats-bar-track{flex:1;height:20px;background:var(--bg);border-radius:10px;overflow:hidden}
+.stats-bar-fill{height:100%;border-radius:10px;transition:width .5s ease}
+.stats-bar-value{font-size:11px;width:30px;color:var(--text2)}
+
+.budget-bar{display:flex;gap:12px;align-items:center;padding:12px 20px;background:var(--card-solid);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:16px}
+.budget-label{font-size:13px;color:var(--text2)}
+.budget-value{font-size:18px;font-weight:700;color:var(--green)}
+.budget-input{width:80px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;text-align:right;background:var(--bg);color:var(--text)}
+.budget-input:focus{outline:none;border-color:var(--accent)}
+.budget-unit{font-size:12px;color:var(--text2)}
+
+.route-card{background:var(--card-solid);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px}
+.route-title{font-size:14px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.route-items{display:flex;flex-wrap:wrap;gap:6px}
+.route-chip{padding:4px 10px;border-radius:8px;font-size:12px;background:var(--bg);border:1px solid var(--border)}
+.route-chip.morning{border-left:3px solid var(--orange)}
+.route-chip.afternoon{border-left:3px solid var(--yellow)}
+.route-chip.night{border-left:3px solid var(--purple)}
+
+.export-panel{position:fixed;bottom:20px;right:20px;z-index:99;display:flex;gap:8px}
+.export-btn{padding:10px 20px;border-radius:24px;border:none;font-size:14px;cursor:pointer;font-weight:500;transition:.2s}
+.export-btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 4px 16px rgba(0,113,227,.3)}
+.export-btn.primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,113,227,.4)}
+.export-btn.secondary{background:var(--card-solid);color:var(--text);border:1px solid var(--border)}
+
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal-overlay.show{display:flex}
+.modal{background:var(--card-solid);border-radius:var(--radius);padding:24px;width:90%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal h3{margin-bottom:16px;font-size:18px}
+.modal input,.modal select{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:10px;font-size:14px;margin-bottom:12px;background:var(--bg);color:var(--text)}
+.modal input:focus,.modal select:focus{outline:none;border-color:var(--accent)}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
+.modal-btn{padding:8px 20px;border-radius:10px;font-size:14px;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text);transition:.2s}
+.modal-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:12px;background:#333;color:#fff;font-size:13px;z-index:300;opacity:0;transition:.3s;pointer-events:none}
+.toast.show{opacity:1}
+
+.scroll-top{position:fixed;bottom:80px;left:20px;width:40px;height:40px;border-radius:50%;background:var(--card-solid);border:1px solid var(--border);cursor:pointer;font-size:18px;display:none;align-items:center;justify-content:center;box-shadow:var(--shadow);z-index:98;transition:.2s}
+.scroll-top:hover{background:var(--accent);color:#fff}
+.scroll-top.show{display:flex}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.card{animation:fadeIn .3s ease}
+
+@media(max-width:768px){.grid{grid-template-columns:1fr}.header{padding:10px 14px}.main{padding:12px}.tabs{flex-wrap:wrap}}
+@media print{.header,.toolbar,.members-row,.export-panel,.scroll-top,.card-actions,.note-input,.day-select,.card-star{display:none!important}.card{break-inside:avoid;box-shadow:none;border:1px solid #ddd}.main{padding:0}}
+</style>
+</head>
+<body>
+<div class="header">
+<div class="header-top">
+<span class="logo">🇻🇳 HCMC Pro</span>
+<input class="search-box" id="search" placeholder="🔍 搜索景点、餐厅、咖啡厅、区域..." onkeydown="if(event.key==='Escape')this.value='';renderAll()">
+<button class="icon-btn" id="themeBtn" onclick="toggleTheme()" title="切换主题">🌙</button>
+<button class="icon-btn" id="langBtn" onclick="toggleLang()" title="切换语言">EN</button>
+<button class="icon-btn" onclick="togglePrintView()" title="打印视图">🖨️</button>
+</div>
+<div class="toolbar" id="toolbar"></div>
+<div class="members-row">
+<span style="font-size:12px;color:var(--text2)">👥 同行:</span>
+<div id="memberTags"></div>
+<button class="add-member" onclick="showModal('member')">+ 添加</button>
+</div>
+</div>
+<div class="stats-bar" id="statsBar"></div>
+
+<div class="main">
+<div class="tabs">
+<div class="tab active" data-view="cards" onclick="switchView('cards')">📋 全部景点</div>
+<div class="tab" data-view="district" onclick="switchView('district')">📍 区域分布</div>
+<div class="tab" data-view="days" onclick="switchView('days')">📅 行程规划</div>
+<div class="tab" data-view="route" onclick="switchView('route')">🗺️ 路线优化</div>
+<div class="tab" data-view="stats" onclick="switchView('stats')">📊 统计面板</div>
+</div>
+
+<div id="viewCards">
+<div class="budget-bar">
+<span class="budget-label">💰 预算 (万VND):</span>
+<input class="budget-input" id="budgetInput" type="number" value="500" onchange="updateBudget()">
+<span class="budget-unit">万越南盾 ≈ <span id="budgetCNY">¥0</span></span>
+<span style="flex:1"></span>
+<span class="budget-label">已选 <span id="selectedCount">0</span> 项</span>
+</div>
+<div class="grid" id="grid"></div>
+</div>
+
+<div id="viewDistrict" class="hidden">
+<div class="district-view" id="districtView"></div>
+</div>
+
+<div id="viewDays" class="hidden">
+<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+<button class="modal-btn primary" onclick="showModal('addDay')">+ 添加天数</button>
+<button class="modal-btn" onclick="clearDays()">🗑️ 清空行程</button>
+<button class="modal-btn" onclick="autoPlan()">✨ 智能规划</button>
+</div>
+<div class="day-view" id="dayView"></div>
+</div>
+
+<div id="viewRoute" class="hidden">
+<div id="routeContent"></div>
+</div>
+
+<div id="viewStats" class="hidden">
+<div class="stats-panel" id="statsPanel"></div>
+</div>
+</div>
+
+<div class="export-panel">
+<button class="export-btn secondary" onclick="exportData()">📥 导入/导出</button>
+<button class="export-btn primary" onclick="exportResults()">📋 导出行程</button>
+</div>
+<button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<div class="modal-overlay" id="modal">
+<div class="modal">
+<h3 id="modalTitle">添加</h3>
+<div id="modalBody"></div>
+<div class="modal-btns">
+<button class="modal-btn" onclick="hideModal()">取消</button>
+<button class="modal-btn primary" id="modalConfirm" onclick="modalAction()">确定</button>
+</div>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const CATS=[
+{id:"culture",zh:"文化·历史",en:"Culture",icon:"🏛️",color:"#1a73e8"},
+{id:"market",zh:"市场·购物",en:"Shopping",icon:"🛒",color:"#e67c73"},
+{id:"cafe",zh:"咖啡·甜品",en:"Cafés",icon:"☕",color:"#f6bf26"},
+{id:"food",zh:"美食",en:"Food",icon:"🍜",color:"#33b679"},
+{id:"nightlife",zh:"夜生活",en:"Nightlife",icon:"🍸",color:"#8e24aa"},
+{id:"daytrip",zh:"一日游·体验",en:"Activities",icon:"🏞️",color:"#039be5"},
+{id:"spa",zh:"SPA·按摩",en:"SPA",icon:"💆",color:"#f4511e"},
+{id:"hotel",zh:"住宿",en:"Hotels",icon:"🏨",color:"#616161"}
+];
+
+const ITEMS=[
+{id:1,name:"地标塔81观景台",nameEn:"Landmark 81 SkyView",cat:"culture",pri:"red",time:["afternoon","night"],district:"Bình Thạnh",hours:"9:00-21:30",notes:"越南第一高楼461米，360°俯瞰全城+西贡河日落",notesEn:"Vietnam's tallest, 360° city view + sunset",desc:"住对面步行5分钟",price:25},
+{id:2,name:"粉红教堂",nameEn:"Tân Định Church",cat:"culture",pri:"red",time:["morning"],district:"第三郡",hours:"8:00-17:00",notes:"全粉色外观超上镜，小红书C位打卡",notesEn:"All-pink exterior, top Instagram spot",desc:"清晨光线最佳",price:0},
+{id:3,name:"红教堂",nameEn:"Notre-Dame Cathedral",cat:"culture",pri:"yellow",time:["morning","afternoon"],district:"第一郡",hours:"外观全天；内部 8:00-16:00",notes:"法国进口红砖，圣母玛利亚雕像",notesEn:"French red bricks, Virgin Mary statue",desc:"正面整修中",price:0},
+{id:4,name:"中央邮局",nameEn:"Central Post Office",cat:"culture",pri:"red",time:["morning","afternoon"],district:"第一郡",hours:"周一-周五 7:00-19:00",notes:"全球最美邮局之一，可寄明信片",notesEn:"World's most beautiful post offices",desc:"与红教堂一街之隔",price:0},
+{id:5,name:"统一宫",nameEn:"Independence Palace",cat:"culture",pri:"yellow",time:["morning","afternoon"],district:"第一郡",hours:"7:30-16:00",notes:"100个厅堂+地下室指挥中心",notesEn:"100 halls + underground command center",desc:"距邮局步行10分钟",price:10},
+{id:6,name:"战争遗迹博物馆",nameEn:"War Remnants Museum",cat:"culture",pri:"red",time:["morning"],district:"第一郡",hours:"7:30-17:00",notes:"震撼教育级别，退役战机组",notesEn:"Shocking educational level, retired aircraft",desc:"上午购票",price:5},
+{id:7,name:"西贡歌剧院",nameEn:"Saigon Opera House",cat:"culture",pri:"yellow",time:["night"],district:"第一郡",hours:"外观全天；A O Show 18:00",notes:"靛蓝屋顶+沙白外墙",notesEn:"Indigo roof + white walls",desc:"提前订票",price:50},
+{id:8,name:"市政厅",nameEn:"People's Committee Hall",cat:"culture",pri:"white",time:["afternoon","night"],district:"第一郡",hours:"仅外观",notes:"文艺复兴法式建筑",notesEn:"Renaissance French architecture",desc:"阮惠步行街尽头",price:0},
+{id:9,name:"美术馆",nameEn:"Fine Arts Museum",cat:"culture",pri:"yellow",time:["morning","afternoon"],district:"第一郡",hours:"9:00-17:00",notes:"超好拍，每个角落都能出大片",notesEn:"Super photogenic, every corner",desc:"周一闭馆",price:5},
+{id:10,name:"历史博物馆",nameEn:"History Museum",cat:"culture",pri:"white",time:["morning","afternoon"],district:"第三郡",hours:"8:00-17:00",notes:"法式建筑本身值得看",notesEn:"French building worth seeing",desc:"周一闭馆",price:5},
+{id:11,name:"玉皇殿",nameEn:"Jade Emperor Pagoda",cat:"culture",pri:"yellow",time:["morning"],district:"第三郡",hours:"7:00-18:00",notes:"精美木雕+陶瓷装饰",notesEn:"Exquisite wood carvings + ceramics",desc:"奥巴马也去过",price:0},
+{id:12,name:"永严寺",nameEn:"Vinh Nghiem Pagoda",cat:"culture",pri:"white",time:["morning"],district:"Bình Thạnh",hours:"6:00-18:00",notes:"七层宝塔，融合日本建筑风格",notesEn:"7-story pagoda, Japanese influence",desc:"清晨去最有氛围",price:0},
+{id:13,name:"天后宫",nameEn:"Thiên Hậu Temple",cat:"culture",pri:"yellow",time:["morning","afternoon"],district:"第五郡",hours:"6:00-17:30",notes:"华人区最古老庙宇",notesEn:"Oldest temple in Chinatown",desc:"第五郡华人区",price:0},
+{id:14,name:"马里安曼印度庙",nameEn:"Mariamman Hindu Temple",cat:"culture",pri:"white",time:["morning","afternoon"],district:"第一郡",hours:"7:00-19:00",notes:"越南罕见印度教寺庙",notesEn:"Rare Hindu temple in Vietnam",desc:"槟城市场步行5分钟",price:0},
+{id:15,name:"阮惠步行街",nameEn:"Nguyễn Huệ Walking St.",cat:"culture",pri:"yellow",time:["afternoon","night"],district:"第一郡",hours:"全天",notes:"胡志明雕像+市政厅，夜晚音乐喷泉",notesEn:"Statue + City Hall, night fountain",desc:"咖啡公寓在这条街上",price:0},
+{id:16,name:"滨城市场",nameEn:"Ben Thanh Market",cat:"market",pri:"red",time:["morning","afternoon"],district:"第一郡",hours:"6:00-22:00",notes:"1600+摊位，服饰/手工艺/伴手礼",notesEn:"1600+ stalls, clothing/crafts/souvenirs",desc:"一定要杀价！",price:0},
+{id:17,name:"安东市场",nameEn:"An Đông Market",cat:"market",pri:"yellow",time:["morning"],district:"第五郡",hours:"7:00-18:00",notes:"华人区批发市场，价格比滨城便宜",notesEn:"Chinatown wholesale, cheaper than Ben Thanh",desc:"土特产采购好去处",price:0},
+{id:18,name:"Saigon Centre",nameEn:"Saigon Centre",cat:"market",pri:"white",time:["afternoon"],district:"第一郡",hours:"9:30-22:00",notes:"人气商场+人气咖啡厅",notesEn:"Popular mall + popular cafés",desc:"逛街购物一站式",price:0},
+{id:19,name:"Diamond Plaza",nameEn:"Diamond Plaza",cat:"market",pri:"white",time:["afternoon"],district:"第一郡",hours:"9:30-22:00",notes:"集购物、餐饮、娱乐一体",notesEn:"Shopping, dining, entertainment",desc:"近红教堂",price:0},
+{id:20,name:"Saigon Square",nameEn:"Saigon Square",cat:"market",pri:"white",time:["morning","afternoon"],district:"第一郡",hours:"8:00-20:00",notes:"仿牌衣物鞋子集中地",notesEn:"Copy-brand clothing hub",desc:"价格便宜需杀价",price:0},
+{id:21,name:"Vincom Center",nameEn:"Vincom Center",cat:"market",pri:"white",time:["afternoon"],district:"第一郡",hours:"9:00-22:00",notes:"品牌齐全，空调舒适",notesEn:"Full brand range, A/C comfort",desc:"阮惠步行街旁",price:0},
+{id:22,name:"书街",nameEn:"Book Street",cat:"market",pri:"yellow",time:["afternoon"],district:"第一郡",hours:"8:00-21:00",notes:"文青最爱，书店+咖啡厅+文创",notesEn:"Book lovers' paradise, cafés + crafts",desc:"买明信片好去处",price:0},
+{id:23,name:"咖啡公寓",nameEn:"Cafe Apartment",cat:"cafe",pri:"red",time:["afternoon","night"],district:"第一郡",hours:"8:00-22:00",notes:"10层楼咖啡/文创公寓楼",notesEn:"10-story café building, iconic grid facade",desc:"电梯费5000VND",price:0},
+{id:24,name:"Cộng Cafe",nameEn:"Cộng Cafe",cat:"cafe",pri:"red",time:["morning","afternoon"],district:"第三郡",hours:"7:00-22:30",notes:"越南椰子咖啡连锁，粉红教堂对面",notesEn:"Coconut coffee chain, opposite Pink Church",desc:"椰子咖啡是招牌",price:3},
+{id:25,name:"The Coffee House",nameEn:"The Coffee House",cat:"cafe",pri:"yellow",time:["morning","afternoon"],district:"第一郡",hours:"7:00-22:00",notes:"越南版星巴克升级版",notesEn:"Vietnam's Starbucks upgrade",desc:"多家分店",price:4},
+{id:26,name:"Highland Coffee",nameEn:"Highland Coffee",cat:"cafe",pri:"white",time:["morning","afternoon","night"],district:"第一郡",hours:"7:00-23:00",notes:"越南最大连锁咖啡",notesEn:"Vietnam's largest coffee chain",desc:"随处可见",price:3},
+{id:27,name:"Nấp Saigon",nameEn:"Nấp Saigon",cat:"cafe",pri:"yellow",time:["afternoon"],district:"第三郡",hours:"8:00-22:00",notes:"隐巷风格，安静有调性",notesEn:"Hidden alley style, quiet and cool",desc:"小众秘境感",price:4},
+{id:28,name:"Quán Ăn Ngon",nameEn:"Quán Ăn Ngon",cat:"food",pri:"red",time:["lunch","dinner"],district:"第一郡",hours:"7:00-22:00",notes:"一次吃遍越南各省代表性料理",notesEn:"Taste dishes from all Vietnamese regions",desc:"推荐河粉+春卷",price:15},
+{id:29,name:"Secret Garden",nameEn:"Secret Garden",cat:"food",pri:"yellow",time:["lunch","dinner"],district:"第一郡",hours:"10:00-22:00",notes:"藏在顶楼的秘密花园",notesEn:"Hidden rooftop secret garden",desc:"需要爬楼梯",price:12},
+{id:30,name:"Phở Hòa Pasteur",nameEn:"Phở Hòa Pasteur",cat:"food",pri:"red",time:["morning","lunch"],district:"第一郡",hours:"6:00-22:00",notes:"交通方便+好吃，汤头鲜美",notesEn:"Delicious, flavorful broth",desc:"早点去避免排队",price:6},
+{id:31,name:"Bánh Mì Huỳnh Hoa",nameEn:"Bánh Mì Huỳnh Hoa",cat:"food",pri:"red",time:["morning","lunch"],district:"第一郡",hours:"5:30-22:00",notes:"胡志明市最好吃的法包",notesEn:"HCMC's best bánh mì",desc:"槟城市场附近",price:3},
+{id:32,name:"Cục Gạch Quán",nameEn:"Cục Gạch Quán",cat:"food",pri:"yellow",time:["lunch","dinner"],district:"第一郡",hours:"10:00-22:00",notes:"老宅改造餐厅，复古装饰",notesEn:"Old house, vintage décor",desc:"环境很有特色",price:15},
+{id:33,name:"Ben Nghe Street Food",nameEn:"Ben Nghe Street Food",cat:"food",pri:"yellow",time:["afternoon","night"],district:"第一郡",hours:"10:00-22:00",notes:"各种越南街头小吃集中",notesEn:"Vietnamese street food hub",desc:"想吃街头小吃好去处",price:5},
+{id:34,name:"Home Finest Saigon",nameEn:"Home Finest Saigon",cat:"food",pri:"yellow",time:["dinner"],district:"第一郡",hours:"11:00-22:00",notes:"环境优雅的越南菜fine dining",notesEn:"Elegant Vietnamese fine dining",desc:"需预约",price:30},
+{id:35,name:"Chill Skybar",nameEn:"Chill Skybar",cat:"nightlife",pri:"red",time:["night"],district:"第一郡",hours:"17:00-2:00",notes:"胡志明市最知名skybar之一",notesEn:"One of HCMC's most famous skybars",desc:"Dress code，建议预约",price:20},
+{id:36,name:"Saigon Rooftop Bar",nameEn:"Saigon Saigon Rooftop Bar",cat:"nightlife",pri:"yellow",time:["night"],district:"第一郡",hours:"16:00-0:00",notes:"Caravelle酒店顶楼",notesEn:"Caravelle Hotel rooftop",desc:"有历史故事",price:15},
+{id:37,name:"Glow Skybar",nameEn:"Glow Skybar",cat:"nightlife",pri:"yellow",time:["night"],district:"第一郡",hours:"17:00-2:00",notes:"氛围轻松，价格友好",notesEn:"Relaxed, friendlier prices",desc:"适合群组",price:12},
+{id:38,name:"Broma Not A Bar",nameEn:"Broma Not A Bar",cat:"nightlife",pri:"yellow",time:["night"],district:"第一郡",hours:"18:00-2:00",notes:"隐藏式酒吧，调酒创意",notesEn:"Hidden speakeasy, creative cocktails",desc:"Speakeasy风格",price:15},
+{id:39,name:"Bùi Viện Walking St.",nameEn:"Bùi Viện Walking St.",cat:"nightlife",pri:"red",time:["night"],district:"第一郡",hours:"全天（夜晚最嗨）",notes:"白天日式料理街，夜晚酒吧区",notesEn:"Japanese food by day, bar street by night",desc:"体验越南夜生活",price:5},
+{id:40,name:"Phạm Ngũ Lão",nameEn:"Phạm Ngũ Lão",cat:"nightlife",pri:"yellow",time:["night"],district:"第一郡",hours:"全天",notes:"背包客天堂",notesEn:"Backpacker heaven",desc:"群组夜生活",price:5},
+{id:41,name:"古芝地道",nameEn:"Cu Chi Tunnels",cat:"daytrip",pri:"red",time:["morning"],district:"周边",hours:"7:30出发-15:00回",notes:"250公里地下地道",notesEn:"250km underground tunnels",desc:"距市区1.5h车程",price:20},
+{id:42,name:"湄公河三角洲",nameEn:"Mekong Delta",cat:"daytrip",pri:"red",time:["morning"],district:"周边",hours:"8:00出发-17:00返回",notes:"乘手摇船穿椰林",notesEn:"Rowboat through coconut groves",desc:"距市区2h车程",price:25},
+{id:43,name:"A O Show",nameEn:"A O Show",cat:"daytrip",pri:"yellow",time:["night"],district:"第一郡",hours:"18:00",notes:"越南版太阳马戏团",notesEn:"Vietnam's Cirque du Soleil",desc:"西贡歌剧院内",price:50},
+{id:44,name:"水上木偶戏",nameEn:"Water Puppet Show",cat:"daytrip",pri:"yellow",time:["night"],district:"第一郡",hours:"18:30 / 20:00",notes:"越南传统表演",notesEn:"Traditional Vietnamese performance",desc:"金龙剧院",price:10},
+{id:45,name:"越南烹饪课",nameEn:"Cooking Class",cat:"daytrip",pri:"yellow",time:["morning","afternoon"],district:"第一郡",hours:"9:00-12:00 / 14:00-17:00",notes:"学做越南河粉春卷",notesEn:"Learn to make phở & spring rolls",desc:"适合群组",price:30},
+{id:46,name:"西贡河夜游船",nameEn:"Saigon River Cruise",cat:"daytrip",pri:"yellow",time:["night"],district:"第一郡",hours:"18:00-21:00",notes:"越南料理+传统歌舞+夜景",notesEn:"Vietnamese dinner + show + river view",desc:"需预约",price:40},
+{id:47,name:"Miumiu Spa",nameEn:"Miumiu Spa",cat:"spa",pri:"red",time:["afternoon","night"],district:"第一郡",hours:"10:00-23:00",notes:"小红书必去按摩",notesEn:"Must-visit massage",desc:"提前预约",price:20},
+{id:48,name:"Sofia Suite Hotel",nameEn:"Sofia Suite Hotel",cat:"hotel",pri:"white",time:["morning","afternoon","night"],district:"Bình Thạnh",hours:"—",notes:"CP值高、早餐丰盛",notesEn:"Great value, abundant breakfast",desc:"你们已定住宿",price:0},
+{id:49,name:"Phuong Nam Hotel",nameEn:"The Phuong Nam Hotel",cat:"hotel",pri:"white",time:["morning","afternoon","night"],district:"第一郡",hours:"—",notes:"交通方便、早餐好吃",notesEn:"Convenient, good breakfast",desc:"同上",price:0},
+{id:50,name:"Fusion Suites",nameEn:"Fusion Suites Saigon",cat:"hotel",pri:"white",time:["morning","afternoon","night"],district:"第一郡",hours:"—",notes:"房间大+含每日SPA",notesEn:"Large rooms + daily SPA",desc:"同上",price:0}
+];
+
+const PRI={red:{zh:"必去",en:"Must-see"},yellow:{zh:"推荐",en:"Recommended"},white:{zh:"可选",en:"Optional"}};
+const TIME_ICONS={morning:{zh:"🌅晨",en:"🌅AM"},afternoon:{zh:"☀️午",en:"☀️PM"},night:{zh:"🌙夜",en:"🌙Night"},lunch:{zh:"🍽️午",en:"🍽️Lunch"},dinner:{zh:"🍽️晚",en:"🍽️Dinner"}};
+
+let lang=localStorage.getItem("v4_lang")||"zh";
+let members=JSON.parse(localStorage.getItem("v4_members")||"[]");
+let votes=JSON.parse(localStorage.getItem("v4_votes")||"{}");
+let stars=JSON.parse(localStorage.getItem("v4_stars")||"[]");
+let notes=JSON.parse(localStorage.getItem("v4_notes")||"{}");
+let days=JSON.parse(localStorage.getItem("v4_days")||"[]");
+let activeCats=new Set();
+let searchTerm="";
+let viewMode="cards";
+let sortBy="priority";
+let isDark=false;
+let modalMode="";
+let dragItem=null;
+
+function save(){
+localStorage.setItem("v4_lang",lang);
+localStorage.setItem("v4_members",JSON.stringify(members));
+localStorage.setItem("v4_votes",JSON.stringify(votes));
+localStorage.setItem("v4_stars",JSON.stringify(stars));
+localStorage.setItem("v4_notes",JSON.stringify(notes));
+localStorage.setItem("v4_days",JSON.stringify(days));
+}
+
+function t(zh,en){return lang==="en"?en:zh}
+
+function getFiltered(){
+const q=searchTerm.toLowerCase();
+return ITEMS.filter(it=>{
+if(activeCats.size&&!activeCats.has(it.cat))return false;
+if(q&&!it.name.toLowerCase().includes(q)&&!it.nameEn.toLowerCase().includes(q)&&!it.notes.toLowerCase().includes(q)&&!it.notesEn.toLowerCase().includes(q)&&!it.district.toLowerCase().includes(q))return false;
+return true;
+});
+}
+
+function sortItems(items){
+const p={red:0,yellow:1,white:2};
+if(sortBy==="priority")return items.sort((a,b)=>p[a.pri]-p[b.pri]);
+if(sortBy==="district")return items.sort((a,b)=>a.district.localeCompare(b.district));
+if(sortBy==="name")return items.sort((a,b)=>a.name.localeCompare(b.name));
+if(sortBy==="price")return items.sort((a,b)=>a.price-b.price);
+if(sortBy==="votes"){
+return items.sort((a,b)=>{
+const va=Object.values(votes[a.id]||{}).filter(v=>v==="yes").length;
+const vb=Object.values(votes[b.id]||{}).filter(v=>v==="yes").length;
+return vb-va;
+});
+}
+return items;
+}
+
+function renderToolbar(){
+const el=document.getElementById("toolbar");
+const catCounts={};
+ITEMS.forEach(it=>{catCounts[it.cat]=(catCounts[it.cat]||0)+1});
+const catChips=CATS.map(c=>`<span class="chip ${activeCats.has(c.id)?"active":""}" onclick="toggleCat('${c.id}')" style="${activeCats.has(c.id)?`background:${c.color};border-color:${c.color}`:""}">${c.icon} ${t(c.zh,c.en)}<span class="count">${catCounts[c.id]}</span></span>`).join("");
+const sortBtns=[
+{id:"priority",label:"🔥 优先"},
+{id:"district",label:"📍 区域"},
+{id:"name",label:"🔤 名称"},
+{id:"price",label:"💰 价格"},
+{id:"votes",label:"👍 票数"}
+].map(s=>`<span class="sort-btn ${sortBy===s.id?"active":""}" onclick="setSort('${s.id}')">${s.label}</span>`).join("");
+el.innerHTML=catChips+`<span style="color:var(--border);margin:0 4px">|</span>`+sortBtns;
+}
+
+function renderMembers(){
+document.getElementById("memberTags").innerHTML=members.map(m=>`<span class="member-tag">${m}<span class="rm" onclick="removeMember('${m}')">×</span></span>`).join("");
+}
+
+function renderStatsBar(){
+const filtered=getFiltered();
+const priCount={red:0,yellow:0,white:0};
+filtered.forEach(it=>priCount[it.pri]++);
+const totalVotes=Object.values(votes).reduce((acc,v)=>{Object.values(v).forEach(val=>{if(val)acc++});return acc},0);
+const starred=stars.length;
+document.getElementById("statsBar").innerHTML=`
+<span class="stat-item"><span class="stat-dot" style="background:var(--accent)"></span>${filtered.length}/${ITEMS.length} 项</span>
+<span class="stat-item"><span class="stat-dot" style="background:var(--red)"></span>必去 ${priCount.red}</span>
+<span class="stat-item"><span class="stat-dot" style="background:var(--orange)"></span>推荐 ${priCount.yellow}</span>
+<span class="stat-item"><span class="stat-dot" style="background:var(--text2)"></span>可选 ${priCount.white}</span>
+<span class="stat-item">⭐ ${starred}</span>
+<span class="stat-item">🗳️ ${totalVotes} 票</span>
+`;
+}
+
+function renderCards(){
+const grid=document.getElementById("grid");
+const filtered=sortItems(getFiltered());
+grid.innerHTML=filtered.map(cardHtml).join("");
+const el=document.getElementById("selectedCount");
+if(el)el.textContent=filtered.length;
+}
+
+function cardHtml(it){
+const catObj=CATS.find(c=>c.id===it.cat);
+const votesForItem=votes[it.id]||{};
+const vSummary={yes:0,no:0,maybe:0};
+members.forEach(m=>{if(votesForItem[m]==="yes")vSummary.yes++;if(votesForItem[m]==="no")vSummary.no++;if(votesForItem[m]==="maybe")vSummary.maybe++});
+const isStarred=stars.includes(it.id);
+const dayOptions=days.map((d,i)=>`<option value="${i}">${d.name}</option>`).join("");
+const currentDay=days.findIndex(d=>d.items.includes(it.id));
+const itemNote=notes[it.id]||"";
+
+return `<div class="card" data-id="${it.id}" draggable="true" ondragstart="dragStart(event,${it.id})" ondragend="dragEnd(event)">
+<span class="card-star ${isStarred?"starred":""}" onclick="toggleStar(${it.id})">${isStarred?"⭐":"☆"}</span>
+<div class="card-head">
+<div class="card-title">${it.name}</div>
+<div class="card-title-en">${it.nameEn}</div>
+</div>
+<div class="card-badges">
+<span class="badge badge-cat" style="background:${catObj.color}20;color:${catObj.color}">${catObj.icon} ${t(catObj.zh,catObj.en)}</span>
+<span class="badge badge-pri-${it.pri}">${PRI[it.pri][lang==="en"?"en":"zh"]}</span>
+${it.time.map(ti=>`<span class="badge badge-time">${TIME_ICONS[ti]||ti}</span>`).join("")}
+<span class="badge badge-district">📍 ${it.district}</span>
+${it.price?`<span class="badge badge-price">💰 ${it.price}万</span>`:""}
+</div>
+<div class="card-info">🕐 ${it.hours}</div>
+<div class="card-desc">${lang==="en"?it.notesEn:it.notes}</div>
+${it.desc?`<div class="card-notes">💡 ${it.desc}</div>`:""}
+${members.length?`<div class="card-actions">
+${members.map(m=>{
+const v=votesForItem[m]||"";
+return `<div style="display:flex;align-items:center;gap:2px">
+<span class="voter-label">${m}</span>
+<button class="vote-btn ${v==="yes"?"voted v-yes":""}" onclick="vote(${it.id},'${m}','yes')">✓</button>
+<button class="vote-btn ${v==="no"?"voted v-no":""}" onclick="vote(${it.id},'${m}','no')">✗</button>
+<button class="vote-btn ${v==="maybe"?"voted v-maybe":""}" onclick="vote(${it.id},'${m}','maybe')">?</button>
+</div>`;
+}).join("")}
+</div>
+<div class="votes-summary">
+<div class="summary-bar">
+<span>✅ ${vSummary.yes}</span><span>❌ ${vSummary.no}</span><span>⏳ ${vSummary.maybe}</span>
+</div></div>`:""}
+${days.length?`<div style="margin-top:8px;display:flex;gap:6px;align-items:center">
+<span style="font-size:11px;color:var(--text2)">📅</span>
+<select class="day-select" onchange="addToDay(${it.id},this.value)">
+<option value="-1"${currentDay===-1?" selected":""}>不加入行程</option>
+${days.map((d,i)=>`<option value="${i}"${currentDay===i?" selected":""}>${d.name}</option>`).join("")}
+</select>
+</div>`:""}
+<textarea class="note-input" placeholder="📝 添加备注..." rows="1" oninput="saveNote(${it.id},this.value)">${itemNote}</textarea>
+</div>`;
+}
+
+function renderDistrict(){
+const view=document.getElementById("districtView");
+const filtered=sortItems(getFiltered());
+const groups={};
+filtered.forEach(it=>{if(!groups[it.district])groups[it.district]=[];groups[it.district].push(it)});
+const order=["第一郡","第三郡","第五郡","Bình Thạnh","第十郡","周边"];
+view.innerHTML=order.filter(d=>groups[d]).map(d=>`<div class="district-group">
+<div class="district-title">📍 ${d} <span class="district-count">(${groups[d].length}项)</span></div>
+<div class="grid">${groups[d].map(cardHtml).join("")}</div>
+</div>`).join("");
+}
+
+function renderDays(){
+const view=document.getElementById("dayView");
+if(!days.length){view.innerHTML=`<div style="text-align:center;padding:40px;color:var(--text2)"><p style="font-size:48px;margin-bottom:16px">📅</p><p>还没有行程规划</p><p style="font-size:13px;margin-top:8px">点击"添加天数"开始规划你的胡志明市之旅</p></div>`;return}
+view.innerHTML=days.map((day,di)=>`<div class="day-column">
+<div class="day-header">
+<span>${day.name}</span>
+<span class="day-stats">${day.items.length} 项 · ${day.items.reduce((s,id)=>{const it=ITEMS.find(i=>i.id===id);return s+(it?it.price:0)},0)}万VND</span>
+</div>
+<div class="day-items" ondragover="dragOver(event)" ondrop="dropItem(event,${di})" ondragleave="dragLeave(event)">
+${day.items.length?day.items.map(id=>{
+const it=ITEMS.find(i=>i.id===id);
+if(!it)return"";
+return `<div class="day-item" draggable="true" ondragstart="dragStartDay(event,${di},${id})">
+<div><div class="day-item-name">${it.name}</div><div class="day-item-meta">${it.hours} · ${it.district}</div></div>
+<span class="day-item-remove" onclick="removeFromDay(${id})">✕</span>
+</div>`;
+}).join(""):`<div class="day-placeholder">拖拽景点到此处</div>`}
+</div>
+</div>`).join("");
+}
+
+function renderRoute(){
+const view=document.getElementById("routeContent");
+const grouped={};
+ITEMS.forEach(it=>{
+if(!grouped[it.district])grouped[it.district]={morning:[],afternoon:[],night:[]};
+it.time.forEach(t=>{
+if(grouped[it.district][t])grouped[it.district][t].push(it);
+});
+});
+const order=["第一郡","第三郡","第五郡","Bình Thạnh","第十郡","周边"];
+view.innerHTML=`<div style="margin-bottom:16px;padding:16px;background:var(--card-solid);border:1px solid var(--border);border-radius:var(--radius)">
+<h3 style="font-size:16px;margin-bottom:8px">🗺️ ${lang==="zh"?"智能路线推荐":"Smart Route Recommendations"}</h3>
+<p style="font-size:13px;color:var(--text2)">${lang==="zh"?"按区域和时间段分组，帮你规划最高效的游览路线":"Grouped by district and time for optimal routing"}</p>
+</div>`+order.filter(d=>grouped[d]).map(d=>{
+const g=grouped[d];
+const sections=[];
+if(g.morning.length)sections.push({label:"🌅 "+t("上午","Morning"),items:g.morning,color:"#ff9500"});
+if(g.afternoon.length)sections.push({label:"☀️ "+t("下午","Afternoon"),items:g.afternoon,color:"#ffcc00"});
+if(g.night.length)sections.push({label:"🌙 "+t("晚上","Night"),items:g.night,color:"#5856d6"});
+return `<div class="route-card">
+<div class="route-title">📍 ${d} <span style="font-size:12px;font-weight:400;color:var(--text2)">(${sections.reduce((s,sec)=>s+sec.items.length,0)}项)</span></div>
+${sections.map(sec=>`<div style="margin-top:8px"><div style="font-size:12px;color:var(--text2);margin-bottom:4px">${sec.label}</div>
+<div class="route-items">${sec.items.map(it=>`<span class="route-chip" style="border-left-color:${sec.color}">${it.name}</span>`).join("")}</div></div>`).join("")}
+</div>`;
+}).join("");
+}
+
+function renderStats(){
+const view=document.getElementById("statsPanel");
+const catCounts={};
+const priCounts={red:0,yellow:0,white:0};
+const districtCounts={};
+const priceTotal=ITEMS.reduce((s,it)=>s+it.price,0);
+ITEMS.forEach(it=>{
+catCounts[it.cat]=(catCounts[it.cat]||0)+1;
+priCounts[it.pri]++;
+districtCounts[it.district]=(districtCounts[it.district]||0)+1;
+});
+
+const voteStats={yes:0,no:0,maybe:0};
+Object.values(votes).forEach(v=>{Object.values(v).forEach(val=>{if(val==="yes")voteStats.yes++;if(val==="no")voteStats.no++;if(val==="maybe")voteStats.maybe++})});
+
+const maxCat=Math.max(...Object.values(catCounts));
+const maxDistrict=Math.max(...Object.values(districtCounts));
+
+view.innerHTML=`
+<div class="stats-title">📊 ${lang==="zh"?"数据统计":"Statistics"}</div>
+<div class="stats-grid">
+<div class="stats-card">
+<div class="stats-card-title">${lang==="zh"?"总景点数":"Total Items"}</div>
+<div class="stats-card-value">${ITEMS.length}</div>
+</div>
+<div class="stats-card">
+<div class="stats-card-title">${lang==="zh"?"预算总计":"Total Budget"}</div>
+<div class="stats-card-value" style="color:var(--green)">${priceTotal}万</div>
+<div style="font-size:12px;color:var(--text2);margin-top:4px">≈ ¥${Math.round(priceTotal*0.29)}</div>
+</div>
+<div class="stats-card">
+<div class="stats-card-title">${lang==="zh"?"投票总数":"Total Votes"}</div>
+<div class="stats-card-value">${voteStats.yes+voteStats.no+voteStats.maybe}</div>
+<div style="font-size:12px;color:var(--text2);margin-top:4px">✅${voteStats.yes} ❌${voteStats.no} ⏳${voteStats.maybe}</div>
+</div>
+<div class="stats-card">
+<div class="stats-card-title">${lang==="zh"?"收藏数":"Favorites"}</div>
+<div class="stats-card-value">⭐ ${stars.length}</div>
+</div>
+</div>
+
+<div style="margin-top:24px">
+<h4 style="margin-bottom:12px">${lang==="zh"?"分类统计":"Category Breakdown"}</h4>
+<div class="stats-bar-chart">
+${CATS.map(c=>`<div class="stats-bar-row">
+<span class="stats-bar-label">${c.icon} ${t(c.zh,c.en)}</span>
+<div class="stats-bar-track"><div class="stats-bar-fill" style="width:${(catCounts[c.id]/maxCat)*100}%;background:${c.color}"></div></div>
+<span class="stats-bar-value">${catCounts[c.id]||0}</span>
+</div>`).join("")}
+</div>
+</div>
+
+<div style="margin-top:24px">
+<h4 style="margin-bottom:12px">${lang==="zh"?"区域分布":"District Distribution"}</h4>
+<div class="stats-bar-chart">
+${Object.entries(districtCounts).sort((a,b)=>b[1]-a[1]).map(([d,c])=>`<div class="stats-bar-row">
+<span class="stats-bar-label">${d}</span>
+<div class="stats-bar-track"><div class="stats-bar-fill" style="width:${(c/maxDistrict)*100}%;background:var(--accent)"></div></div>
+<span class="stats-bar-value">${c}</span>
+</div>`).join("")}
+</div>
+</div>
+`;
+}
+
+function renderAll(){
+renderToolbar();renderMembers();renderStatsBar();
+if(viewMode==="cards"){renderCards();showView("viewCards")}
+else if(viewMode==="district"){renderDistrict();showView("viewDistrict")}
+else if(viewMode==="days"){renderDays();showView("viewDays")}
+else if(viewMode==="route"){renderRoute();showView("viewRoute")}
+else if(viewMode==="stats"){renderStatsPanel();showView("viewStats")}
+}
+
+function showView(id){["viewCards","viewDistrict","viewDays","viewRoute","viewStats"].forEach(v=>{document.getElementById(v).classList.toggle("hidden",v!==id)})}
+
+function switchView(mode){
+viewMode=mode;
+document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.view===mode));
+renderAll();
+}
+
+function renderStatsPanel(){renderStats()}
+
+function toggleCat(id){if(activeCats.has(id))activeCats.delete(id);else activeCats.add(id);renderAll()}
+function setSort(id){sortBy=id;renderAll()}
+function toggleLang(){lang=lang==="zh"?"en":"zh";document.getElementById("langBtn").textContent=lang==="zh"?"EN":"中";save();renderAll()}
+function toggleTheme(){isDark=!isDark;document.documentElement.setAttribute("data-theme",isDark?"dark":"");document.getElementById("themeBtn").textContent=isDark?"☀️":"🌙";localStorage.setItem("v4_theme",isDark?"dark":"")}
+function toggleStar(id){if(stars.includes(id))stars=stars.filter(s=>s!==id);else stars.push(id);save();renderAll()}
+function togglePrintView(){window.print()}
+
+function vote(itemId,member,value){
+if(!votes[itemId])votes[itemId]={};
+votes[itemId][member]=votes[itemId][member]===value?"":value;
+save();renderAll();
+}
+
+function saveNote(itemId,value){notes[itemId]=value;save()}
+
+function addToDay(itemId,dayIdx){
+dayIdx=parseInt(dayIdx);
+days.forEach(d=>d.items=d.items.filter(id=>id!==itemId));
+if(dayIdx>=0)days[dayIdx].items.push(itemId);
+save();renderAll();
+}
+
+function removeFromDay(itemId){
+days.forEach(d=>d.items=d.items.filter(id=>id!==itemId));
+save();renderAll();
+}
+
+function dragStart(e,itemId){dragItem={type:"card",id:itemId};e.dataTransfer.effectAllowed="move"}
+function dragEnd(e){dragItem=null}
+function dragOver(e){e.preventDefault();e.currentTarget.classList.add("dragover")}
+function dragLeave(e){e.currentTarget.classList.remove("dragover")}
+function dropItem(e,dayIdx){e.preventDefault();e.currentTarget.classList.remove("dragover");if(dragItem&&dragItem.type==="card"){addToDay(dragItem.id,parseInt(dayIdx));dragItem=null}}
+function dragStartDay(e,dayIdx,itemId){dragItem={type:"day",id:itemId,fromDay:dayIdx};e.dataTransfer.effectAllowed="move"}
+
+function showModal(mode){
+modalMode=mode;
+const overlay=document.getElementById("modal");
+const title=document.getElementById("modalTitle");
+const body=document.getElementById("modalBody");
+overlay.classList.add("show");
+if(mode==="member"){
+title.textContent=t("添加同行人员","Add Member");
+body.innerHTML=`<input id="modalInput1" placeholder="${t("输入名字","Enter name")}" onkeydown="if(event.key==='Enter')modalAction()">`;
+setTimeout(()=>document.getElementById("modalInput1").focus(),100);
+}else if(mode==="addDay"){
+title.textContent=t("添加天数","Add Day");
+body.innerHTML=`<input id="modalInput1" placeholder="${t("例如：Day 1 或 3月15日","e.g. Day 1 or Mar 15")}" value="Day ${days.length+1}">
+<select id="modalInput2"><option value="morning">🌅 ${t("上午","Morning")}</option><option value="afternoon">☀️ ${t("下午","Afternoon")}</option><option value="night">🌙 ${t("晚上","Night")}</option><option value="fullday">全天 Full Day</option></select>`;
+}
+}
+
+function hideModal(){document.getElementById("modal").classList.remove("show")}
+
+function modalAction(){
+if(modalMode==="member"){
+const name=document.getElementById("modalInput1").value.trim();
+if(name&&!members.includes(name)){members.push(name);save();renderAll()}
+}else if(modalMode==="addDay"){
+const name=document.getElementById("modalInput1").value.trim();
+if(name){days.push({name,items:[]});save();renderAll()}
+}
+hideModal();
+}
+
+function removeMember(name){members=members.filter(m=>m!==name);save();renderAll()}
+function clearDays(){if(confirm(t("确定清空所有行程？","Clear all days?"))){days=[];save();renderAll()}}
+
+function autoPlan(){
+const mustSee=ITEMS.filter(it=>it.pri==="red");
+const recommended=ITEMS.filter(it=>it.pri==="yellow");
+const all=[...mustSee,...recommended];
+const grouped={};
+all.forEach(it=>{
+if(!grouped[it.district])grouped[it.district]=[];
+grouped[it.district].push(it);
+});
+days=[];
+let dayNum=1;
+Object.entries(grouped).forEach(([district,items])=>{
+if(items.length>0){
+days.push({name:`Day ${dayNum} - ${district}`,items:items.map(it=>it.id)});
+dayNum++;
+}
+});
+save();renderAll();showToast(t("智能规划完成！已按区域分配行程","Auto-planned by district!"))
+}
+
+function updateBudget(){
+const val=parseInt(document.getElementById("budgetInput").value)||0;
+document.getElementById("budgetCNY").textContent="¥"+Math.round(val*0.29);
+}
+
+function exportResults(){
+const lines=[`🇻🇳 胡志明市旅行攻略 Pro - 行程导出`,`📅 ${new Date().toLocaleDateString()}`,``];
+if(days.length){
+lines.push(`=== 行程规划 ===`);
+days.forEach(day=>{
+lines.push(`\n【${day.name}】`);
+day.items.forEach(id=>{
+const it=ITEMS.find(i=>i.id===id);
+if(it)lines.push(`  • ${it.name} (${it.nameEn}) - ${it.hours} - ${it.district} - ${it.price}万VND`);
+});
+});
+lines.push(``);
+}
+if(members.length){
+lines.push(`=== 投票结果 ===`);
+members.forEach(m=>{
+const yes=[],no=[],maybe=[];
+ITEMS.forEach(it=>{const v=(votes[it.id]||{})[m];if(v==="yes")yes.push(it.name);if(v==="no")no.push(it.name);if(v==="maybe")maybe.push(it.name)});
+lines.push(`\n【${m}】`);
+lines.push(`  ✅ 去: ${yes.join(", ")||"无"}`);
+lines.push(`  ❌ 不去: ${no.join(", ")||"无"}`);
+lines.push(`  ⏳ 待定: ${maybe.join(", ")||"无"}`);
+});
+}
+const consensus=ITEMS.filter(it=>members.length&&members.every(m=>(votes[it.id]||{})[m]==="yes"));
+if(consensus.length){lines.push(`\n=== 全员共识去 ===`);consensus.forEach(it=>lines.push(`  ⭐ ${it.name}`))}
+const text=lines.join("\n");
+navigator.clipboard.writeText(text).then(()=>showToast("已复制到剪贴板！")).catch(()=>showToast("复制失败"));
+}
+
+function exportData(){
+const data={lang,members,votes,stars,notes,days};
+const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+const url=URL.createObjectURL(blob);
+const a=document.createElement("a");
+a.href=url;a.download=`hcmc-guide-backup-${new Date().toISOString().slice(0,10)}.json`;
+a.click();URL.revokeObjectURL(url);
+showToast("数据已导出");
+}
+
+function showToast(msg){const el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2500)}
+
+// Keyboard shortcuts
+document.addEventListener("keydown",e=>{
+if(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA"||e.target.tagName==="SELECT")return;
+if(e.key==="/"){e.preventDefault();document.getElementById("search").focus()}
+if(e.key>="1"&&e.key<="8"){const cat=CATS[parseInt(e.key)-1];if(cat)toggleCat(cat.id)}
+if(e.key==="d")toggleTheme();
+if(e.key==="l")toggleLang();
+});
+
+// Scroll to top
+window.addEventListener("scroll",()=>{document.getElementById("scrollTop").classList.toggle("show",window.scrollY>300)});
+
+// Search on input
+document.getElementById("search").addEventListener("input",e=>{searchTerm=e.target.value;renderAll()});
+
+// Init
+if(localStorage.getItem("v4_theme")==="dark"){isDark=true;document.documentElement.setAttribute("data-theme","dark");document.getElementById("themeBtn").textContent="☀️"}
+if(lang==="en")document.getElementById("langBtn").textContent="中";
+updateBudget();
+renderAll();
+</script>
+</body>
+</html>
