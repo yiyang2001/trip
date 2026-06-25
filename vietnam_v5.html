@@ -69,6 +69,8 @@ body::before{content:"";position:fixed;inset:0;background:linear-gradient(135deg
 .card-star.starred{opacity:1;background:rgba(255,180,0,.85)}
 .card-edit{position:absolute;top:6px;right:40px;font-size:13px;cursor:pointer;background:rgba(0,0,0,.35);border:none;z-index:5;color:#fff;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:.8}
 .card-edit:active{opacity:1;transform:scale(1.1)}
+.card-delete{position:absolute;top:6px;right:74px;font-size:13px;cursor:pointer;background:rgba(255,59,48,.55);border:none;z-index:5;color:#fff;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:.8}
+.card-delete:active{opacity:1;transform:scale(1.1)}
 .card-head{margin-bottom:6px}
 .card-title{font-size:16px;font-weight:600;user-select:text;cursor:text;line-height:1.3}
 .card-title-en{font-size:12px;color:var(--text2);margin-top:2px;user-select:text;cursor:text}
@@ -114,12 +116,15 @@ body::before{content:"";position:fixed;inset:0;background:linear-gradient(135deg
 .day-header .day-stats{font-size:12px;opacity:.8}
 .day-items{min-height:50px;border:2px dashed var(--border);border-radius:var(--radius);padding:6px;transition:.2s}
 .day-placeholder{padding:16px;text-align:center;color:var(--text2);font-size:13px}
-.day-item{background:var(--card-solid);border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;transition:.15s}
+.day-item{background:var(--card-solid);border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;transition:.15s;cursor:grab}
 .day-item:active{box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.day-item.dragging{opacity:.4;cursor:grabbing}
+.day-item.drag-over{border-top:3px solid var(--accent)}
 .day-item-name{font-size:13px;font-weight:500}
 .day-item-meta{font-size:11px;color:var(--text2)}
-.day-item-remove{cursor:pointer;color:var(--red);opacity:.5;font-size:18px;padding:4px}
+.day-item-remove{cursor:pointer;color:var(--red);opacity:.5;font-size:18px;padding:4px;flex-shrink:0}
 .day-item-remove:active{opacity:1}
+.day-item-handle{color:var(--text2);opacity:.4;margin-right:6px;font-size:14px;user-select:none}
 
 .stats-panel{background:var(--card-solid);border:1px solid var(--border);border-radius:var(--radius);padding:14px}
 .stats-title{font-size:16px;font-weight:600;margin-bottom:14px}
@@ -185,7 +190,7 @@ body::before{content:"";position:fixed;inset:0;background:linear-gradient(135deg
 .modal-btn:active{transform:scale(.95)}
 .modal-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
 
-.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:12px;background:#333;color:#fff;font-size:13px;z-index:300;opacity:0;transition:.3s;pointer-events:none;white-space:nowrap}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:12px;background:#333;color:#fff;font-size:13px;z-index:300;opacity:0;transition:.3s;pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center}
 .toast.show{opacity:1}
 
 .scroll-top{position:fixed;bottom:80px;left:12px;width:44px;height:44px;border-radius:50%;background:var(--card-solid);border:1px solid var(--border);cursor:pointer;font-size:18px;display:none;align-items:center;justify-content:center;box-shadow:var(--shadow);z-index:98;transition:.15s}
@@ -290,9 +295,10 @@ body::before{content:"";position:fixed;inset:0;background:linear-gradient(135deg
 <div class="settings-label">💰 预算</div>
 <div class="settings-row">
 <span style="font-size:14px">万VND</span>
-<input class="settings-input" id="settingsBudget" type="number" value="500" onchange="updateSettingsBudget()" style="width:80px">
+<input class="settings-input" id="settingsBudget" type="number" min="0" step="10" oninput="updateSettingsBudget()" style="width:80px">
 <span style="font-size:14px">≈ RM<span id="settingsBudgetMYR">0</span></span>
 </div>
+<div style="font-size:11px;color:var(--text2);margin-top:4px" id="settingsBudgetHint"></div>
 </div>
 
 <div class="settings-divider"></div>
@@ -319,7 +325,7 @@ body::before{content:"";position:fixed;inset:0;background:linear-gradient(135deg
 <div class="settings-label">ℹ️ 关于</div>
 <div class="settings-item">
 <span class="settings-item-label">版本</span>
-<span class="settings-item-value">v5.0</span>
+<span class="settings-item-value">v5.1</span>
 </div>
 <div class="settings-item">
 <span class="settings-item-label">景点数量</span>
@@ -363,6 +369,18 @@ const DISTRICTS={
 "周边":{lat:10.850,lng:106.500}
 };
 
+// FIX: 价格单位换算
+// 原来: price 字段 = 万 VND, 直接 * VND_TO_MYR (1.5424) 当成 VND 处理 → 错 10000 倍
+// 现在: price * 10000 = 实际 VND, 再除以 VND_PER_MYR 才是 MYR
+const PY_MAP={1:"dibiaota landmark",2:"fenhongjiaotang tandinhdinh pink",3:"hongjiaotang",4:"zhongyangyouju postoffice youju",5:"tongyigong independence",6:"zhanzhengyiji warmuseum",7:"xigonggejuyuan opera",8:"shizhengting cityhall",9:"meishuguan finearts",10:"lishibowuguan history",11:"yuhuangdian jade emperor pagoda",12:"yongyansi",13:"tianhougong",14:"maliyamanman hindu indian",15:"ruanhuibuxingjie walking",16:"binchengshichang bienthanh market",17:"andongshichang",22:"shujie bookstreet book",23:"kafeigongyu cafeapartment cafe",28:"quananngon ngon",31:"banhmi",32:"cucgach",39:"buivien",40:"phamngulao backpacker",41:"guzhididao cuchi tunneldao",42:"meigonghe mekong sanjiaozhou",44:"shuishangmuouxi puppet muouxi",45:"pengrenke cooking",46:"xigonghe rivercruise nightcruise",47:"miumiu",48:"sofia",49:"phuongnam",50:"fusion"};
+
+const VND_PER_MYR = 6700;  // 1 MYR ≈ 6700 VND (近似,可按真实汇率调整)
+function wanToMYR(wan) { return Math.round((wan * 10000 / VND_PER_MYR) * 100) / 100; }
+function wanToVND(wan) { return wan * 10000; }
+
+const PRI={red:{zh:"必去",en:"Must-see"},yellow:{zh:"推荐",en:"Recommended"},white:{zh:"可选",en:"Optional"}};
+const TIME_ICONS={morning:{zh:"🌅晨",en:"🌅AM"},afternoon:{zh:"☀️午",en:"☀️PM"},night:{zh:"🌙夜",en:"🌙Night"},lunch:{zh:"🍽️午",en:"🍽️Lunch"},dinner:{zh:"🍽️晚",en:"🍽️Dinner"}};
+
 const ITEMS=[
 {id:1,name:"地标塔81观景台",nameEn:"Landmark 81 SkyView",cat:"culture",pri:"red",time:["afternoon","night"],district:"Bình Thạnh",hours:"9:00-21:30",notes:"越南第一高楼461米，360°俯瞰全城+西贡河日落",notesEn:"Vietnam's tallest, 360° city view + sunset",desc:"住对面步行5分钟",price:25,addr:"720A Điện Biên Phủ, Bình Thạnh",img:"https://placehold.co/400x250/1a73e8/ffffff?text=Landmark+81"},
 {id:2,name:"粉红教堂",nameEn:"Tân Định Church",cat:"culture",pri:"red",time:["morning"],district:"第三郡",hours:"8:00-17:00",notes:"全粉色外观超上镜，小红书C位打卡",notesEn:"All-pink exterior, top Instagram spot",desc:"清晨光线最佳",price:0,addr:"289 Hai Bà Trưng, Quận 3",img:"https://placehold.co/400x250/666/ffffff?text=XHS"},
@@ -382,7 +400,7 @@ const ITEMS=[
 {id:16,name:"滨城市场",nameEn:"Ben Thanh Market",cat:"market",pri:"red",time:["morning","afternoon"],district:"第一郡",hours:"6:00-22:00",notes:"1600+摊位，服饰/手工艺/伴手礼",notesEn:"1600+ stalls, clothing/crafts/souvenirs",desc:"一定要杀价！",price:0,addr:"Lê Lợi, Quận 1",img:"https://placehold.co/400x250/666/ffffff?text=XHS"},
 {id:17,name:"安东市场",nameEn:"An Đông Market",cat:"market",pri:"yellow",time:["morning"],district:"第五郡",hours:"7:00-18:00",notes:"华人区批发市场，价格比滨城便宜",notesEn:"Chinatown wholesale, cheaper than Ben Thanh",desc:"土特产采购好去处",price:0,addr:"An Dương Vương, Quận 5",img:"https://placehold.co/400x250/666/ffffff?text=XHS"},
 {id:18,name:"Saigon Centre",nameEn:"Saigon Centre",cat:"market",pri:"white",time:["afternoon"],district:"第一郡",hours:"9:30-22:00",notes:"人气商场+人气咖啡厅",notesEn:"Popular mall + popular cafés",desc:"逛街购物一站式",price:0,addr:"65 Lê Lợi, Quận 1",img:"https://placehold.co/400x250/666/ffffff?text=XHS"},
-{id:19,name:"Diamond Plaza",nameEn:"Diamond Plaza",cat:"market",pri:"white",time:["afternoon"],district:"第一郡",hours:"9:30-22:00",notes:"集购物、餐饮、娱乐一体",notesEn:"Shopping, dining, entertainment",desc:"近红教堂",price:0,addr:"34 Lê Duẩn, Quận 1",img:"https://placehold.co/400x250/666/ffffff?text=XHS za.jpg/1024px-Diamond_Pla za.jpg"},
+{id:19,name:"Diamond Plaza",nameEn:"Diamond Plaza",cat:"market",pri:"white",time:["afternoon"],district:"第一郡",hours:"9:30-22:00",notes:"集购物、餐饮、娱乐一体",notesEn:"Shopping, dining, entertainment",desc:"近红教堂",price:0,addr:"34 Lê Duẩn, Quận 1",img:"https://placehold.co/400x250/666/ffffff?text=XHS"},
 {id:20,name:"Saigon Square",nameEn:"Saigon Square",cat:"market",pri:"white",time:["morning","afternoon"],district:"第一郡",hours:"8:00-20:00",notes:"仿牌衣物鞋子集中地",notesEn:"Copy-brand clothing hub",desc:"价格便宜需杀价",price:0,addr:"77 Hàm Nghi, Quận 1",img:"https://placehold.co/400x250/666/ffffff?text=XHS"},
 {id:21,name:"Vincom Center",nameEn:"Vincom Center",cat:"market",pri:"white",time:["afternoon"],district:"第一郡",hours:"9:00-22:00",notes:"品牌齐全，空调舒适",notesEn:"Full brand range, A/C comfort",desc:"阮惠步行街旁",price:0,addr:"72 Lê Thánh Tôn, Quận 1",img:"https://placehold.co/400x250/666/ffffff?text=XHS"},
 {id:22,name:"书街",nameEn:"Book Street",cat:"market",pri:"yellow",time:["afternoon"],district:"第一郡",hours:"8:00-21:00",notes:"文青最爱，书店+咖啡厅+文创",notesEn:"Book lovers' paradise, cafés + crafts",desc:"买明信片好去处",price:0,addr:"Nguyễn Huệ, Quận 1",img:"https://placehold.co/400x250/666/ffffff?text=XHS"},
@@ -416,10 +434,6 @@ const ITEMS=[
 {id:50,name:"Fusion Suites",nameEn:"Fusion Suites Saigon",cat:"hotel",pri:"white",time:["morning","afternoon","night"],district:"第一郡",hours:"—",notes:"房间大+含每日SPA",notesEn:"Large rooms + daily SPA",desc:"同上",price:0,addr:"Quận 1",img:"https://placehold.co/400x250/666/ffffff?text=XHS"}
 ];
 
-const PRI={red:{zh:"必去",en:"Must-see"},yellow:{zh:"推荐",en:"Recommended"},white:{zh:"可选",en:"Optional"}};
-const TIME_ICONS={morning:{zh:"🌅晨",en:"🌅AM"},afternoon:{zh:"☀️午",en:"☀️PM"},night:{zh:"🌙夜",en:"🌙Night"},lunch:{zh:"🍽️午",en:"🍽️Lunch"},dinner:{zh:"🍽️晚",en:"🍽️Dinner"}};
-const VND_TO_MYR=1.5424;
-
 let lang=localStorage.getItem("v5_lang")||"zh";
 let members=JSON.parse(localStorage.getItem("v5_members")||"[]");
 let votes=JSON.parse(localStorage.getItem("v5_votes")||"{}");
@@ -428,12 +442,14 @@ let notes=JSON.parse(localStorage.getItem("v5_notes")||"{}");
 let days=JSON.parse(localStorage.getItem("v5_days")||"[]");
 let customItems=JSON.parse(localStorage.getItem("v5_custom")||"[]");
 let modifiedItems=JSON.parse(localStorage.getItem("v5_modified")||"{}");
+// FIX: 预算也要持久化
+let budget=parseFloat(localStorage.getItem("v5_budget"))||500;
 let activeCats=new Set();
 let activePri=new Set();
 let searchTerm="";
 let viewMode="cards";
 let sortBy="priority";
-let isDark=false;
+let isDark=localStorage.getItem("v5_theme")==="dark";
 let modalMode="";
 
 function buildAllItems(){
@@ -453,17 +469,23 @@ localStorage.setItem("v5_notes",JSON.stringify(notes));
 localStorage.setItem("v5_days",JSON.stringify(days));
 localStorage.setItem("v5_custom",JSON.stringify(customItems));
 localStorage.setItem("v5_modified",JSON.stringify(modifiedItems));
+localStorage.setItem("v5_budget",String(budget));
+localStorage.setItem("v5_theme",isDark?"dark":"light");
 allItems=buildAllItems();
 }
 
 function t(zh,en){return lang==="en"?en:zh}
+
+// 判断是否为自定义景点（ID 由 Date.now() 生成,大于 1000000000000）
+function isCustomItem(id){return typeof id==="number"&&id>1000000000000}
 
 function getFiltered(){
 const q=searchTerm.toLowerCase();
 return allItems.filter(it=>{
 if(activeCats.size&&!activeCats.has(it.cat))return false;
 if(activePri.size&&!activePri.has(it.pri))return false;
-if(q&&!it.name.toLowerCase().includes(q)&&!it.nameEn.toLowerCase().includes(q)&&!it.notes.toLowerCase().includes(q)&&!it.notesEn.toLowerCase().includes(q)&&!it.district.toLowerCase().includes(q))return false;
+const py=(PY_MAP[it.id]||"").toLowerCase();
+if(q&&!it.name.toLowerCase().includes(q)&&!it.nameEn.toLowerCase().includes(q)&&!it.notes.toLowerCase().includes(q)&&!it.notesEn.toLowerCase().includes(q)&&!it.district.toLowerCase().includes(q)&&!py.includes(q))return false;
 return true;
 });
 }
@@ -505,12 +527,21 @@ const sortBtns=[
 el.innerHTML=catChips+`<span style="color:var(--border);margin:0 4px">|</span>`+priChips+`<span style="color:var(--border);margin:0 4px">|</span>`+sortBtns;
 }
 
+// FIX: 两个 render 函数之前结构不一致,现在统一返回带删除按钮的 tag
 function renderMembers(){
-const tags=members.map(m=>`<span class="settings-tag">${m}<span class="rm" onclick="removeMember('${m}')">×</span></span>`).join("");
 const el=document.getElementById("settingsMemberTags");
-if(el)el.innerHTML=tags;
+if(el)el.innerHTML=members.map(memberTagHtml).join("");
 const el2=document.getElementById("memberTags");
-if(el2)el2.innerHTML=members.map(m=>`<span class="member-tag">${m}<span class="rm" onclick="removeMember('${m}')">×</span></span>`).join("");
+if(el2)el2.innerHTML=members.map(memberTagHtml).join("");
+}
+
+function memberTagHtml(m){
+return `<span class="settings-tag">${m}<span class="rm" onclick="removeMember('${m}')">×</span></span>`;
+}
+
+function renderSettingsMembers(){
+const el=document.getElementById("settingsMemberTags");
+if(el)el.innerHTML=members.map(memberTagHtml).join("");
 }
 
 function toggleSettings(){
@@ -525,11 +556,6 @@ document.getElementById("settingsItemCount").textContent=allItems.length;
 }
 }
 
-function renderSettingsMembers(){
-const el=document.getElementById("settingsMemberTags");
-if(el)el.innerHTML=members.map(m=>`<span class="settings-tag">${m}<span class="rm" onclick="removeMember('${m}')">×</span></span>`).join("");
-}
-
 function addSettingsMember(){
 const input=document.getElementById("settingsMemberInput");
 const name=input.value.trim();
@@ -542,10 +568,14 @@ renderAll();
 input.value="";
 }
 
+// FIX: 预算变更后要持久化
 function updateSettingsBudget(){
-const val=parseInt(document.getElementById("settingsBudget").value)||0;
-const myr=Math.round(val*VND_TO_MYR*100)/100;
+const input=document.getElementById("settingsBudget");
+const val=parseInt(input.value)||0;
+budget=val;
+const myr=wanToMYR(val);
 document.getElementById("settingsBudgetMYR").textContent=myr;
+save();
 }
 
 function renderStatsBar(){
@@ -574,7 +604,7 @@ initAllCarousels();
 document.querySelectorAll(".card-img-wrap").forEach(wrap=>{
 const id=parseInt(wrap.id.replace("imgwrap-",""));
 wrap.onclick=function(e){
-if(e.target.closest(".cbtn")||e.target.closest(".card-star")||e.target.closest(".card-edit")||e.target.closest(".xhs-badge"))return;
+if(e.target.closest(".cbtn")||e.target.closest(".card-star")||e.target.closest(".card-edit")||e.target.closest(".card-delete")||e.target.closest(".xhs-badge"))return;
 openLightbox(id,carouselPos[id]||0);
 };
 });
@@ -588,7 +618,9 @@ members.forEach(m=>{if(votesForItem[m]==="yes")vSummary.yes++;if(votesForItem[m]
 const isStarred=stars.includes(it.id);
 const currentDay=days.findIndex(d=>d.items.includes(it.id));
 const itemNote=typeof notes[it.id]==="string"?notes[it.id]:"";
-const myrPrice=Math.round(it.price*VND_TO_MYR*100)/100;
+// FIX: 用新的换算函数
+const myrPrice=wanToMYR(it.price);
+const customFlag=isCustomItem(it.id);
 
 return `<div class="card" data-id="${it.id}">
 <div class="card-img-wrap" id="imgwrap-${it.id}">
@@ -602,6 +634,7 @@ ${it.xhsImages.map((img,i)=>`<img data-idx="${i}" src="${img}" onerror="this.sty
 `:it.img?`<img src="${it.img}" onerror="this.style.display='none'">`:``}
 <span class="card-star ${isStarred?"starred":""}" onclick="event.stopPropagation();toggleStar(${it.id})">⭐</span>
 <button class="card-edit" onclick="event.stopPropagation();editItem(${it.id})">✏️</button>
+${customFlag?`<button class="card-delete" onclick="event.stopPropagation();deleteCustomItem(${it.id})">🗑</button>`:""}
 ${it.xhsUrl?`<a class="xhs-badge" href="${it.xhsUrl}" target="_blank" onclick="event.stopPropagation()">📕</a>`:""}
 </div>
 <div class="card-head">
@@ -666,25 +699,51 @@ view.innerHTML=order.filter(d=>groups[d]).map(d=>`<div class="district-group">
 </div>`).join("");
 }
 
+// FIX: day view 价格换算用新函数,并加上拖拽排序
 function renderDays(){
 const view=document.getElementById("dayView");
 if(!days.length){view.innerHTML=`<div style="text-align:center;padding:40px;color:var(--text2)"><p style="font-size:48px;margin-bottom:16px">📅</p><p>还没有行程规划</p><p style="font-size:13px;margin-top:8px">点击"添加天数"开始规划你的胡志明市之旅</p></div>`;return}
-view.innerHTML=days.map((day,di)=>`<div class="day-column">
+view.innerHTML=days.map((day,di)=>{
+const dayPriceWan=day.items.reduce((s,id)=>{const it=allItems.find(i=>i.id===id);return s+(it?it.price:0)},0);
+const dayPriceMYR=wanToMYR(dayPriceWan);
+const dayHours=day.items.reduce((s,id)=>{const it=allItems.find(i=>i.id===id);return s+(it&&it.hours&&it.hours!=="—"&&it.hours!=="自定义"?1:0)},0);
+return `<div class="day-column" data-day-idx="${di}">
 <div class="day-header">
 <span>${day.name}</span>
-<span class="day-stats">${day.items.length} 项 · ${day.items.reduce((s,id)=>{const it=allItems.find(i=>i.id===id);return s+(it?it.price:0)},0)}万VND ≈ RM${Math.round(day.items.reduce((s,id)=>{const it=allItems.find(i=>i.id===id);return s+(it?it.price:0)},0)*VND_TO_MYR*100)/100}</span>
+<span class="day-stats">${day.items.length} 项${dayPriceWan?` · ${dayPriceWan}万VND ≈ RM${dayPriceMYR}`:""}</span>
 </div>
-<div class="day-items">
-${day.items.length?day.items.map(id=>{
+<div class="day-items" data-day-idx="${di}" ondragover="event.preventDefault();this.querySelectorAll('.day-item').forEach(el=>el.classList.add('drag-over'))" ondragleave="this.querySelectorAll('.day-item').forEach(el=>el.classList.remove('drag-over'))" ondrop="handleDayDrop(event,${di})">
+${day.items.length?day.items.map((id,ii)=>{
 const it=allItems.find(i=>i.id===id);
 if(!it)return"";
-return `<div class="day-item">
-<div><div class="day-item-name">${it.name}</div><div class="day-item-meta">${it.hours} · ${it.district}</div></div>
+return `<div class="day-item" draggable="true" data-day-idx="${di}" data-item-idx="${ii}" data-item-id="${id}" ondragstart="handleDayDragStart(event,${di},${ii})" ondragend="this.classList.remove('dragging')">
+<span class="day-item-handle">⋮⋮</span>
+<div style="flex:1"><div class="day-item-name">${it.name}</div><div class="day-item-meta">${it.hours} · ${it.district}</div></div>
 <span class="day-item-remove" onclick="removeFromDay(${id})">✕</span>
 </div>`;
 }).join(""):`<div class="day-placeholder">${lang==="zh"?"在卡片视图中选择日期添加景点":"Select a day on card view to add items"}</div>`}
 </div>
-</div>`).join("");
+</div>`;
+}).join("");
+}
+
+let dragSrcDay=-1,dragSrcItem=-1;
+function handleDayDragStart(e,di,ii){dragSrcDay=di;dragSrcItem=ii;e.dataTransfer.effectAllowed="move";try{e.dataTransfer.setData("text/plain",`${di}:${ii}`)}catch(_){};e.target.classList.add("dragging")}
+function handleDayDrop(e,targetDay){
+e.preventDefault();
+document.querySelectorAll(".day-item").forEach(el=>el.classList.remove("drag-over"));
+if(dragSrcDay<0)return;
+const target=e.target.closest(".day-item");
+const targetIdx=target?parseInt(target.dataset.itemIdx):-1;
+if(dragSrcDay===targetDay&&targetIdx===dragSrcItem)return;
+const item=days[dragSrcDay].items[dragSrcItem];
+days[dragSrcDay].items.splice(dragSrcItem,1);
+let insertAt=targetIdx;
+if(dragSrcDay===targetDay&&targetIdx>dragSrcItem)insertAt--;
+if(insertAt<0||insertAt>days[targetDay].items.length)insertAt=days[targetDay].items.length;
+days[targetDay].items.splice(insertAt,0,item);
+dragSrcDay=-1;dragSrcItem=-1;
+save();renderDays();
 }
 
 function renderRoute(){
@@ -719,7 +778,8 @@ const view=document.getElementById("statsPanel");
 const catCounts={};
 const priCounts={red:0,yellow:0,white:0};
 const districtCounts={};
-const priceTotal=allItems.reduce((s,it)=>s+it.price,0);
+const priceTotalWan=allItems.reduce((s,it)=>s+it.price,0);
+const priceTotalMYR=wanToMYR(priceTotalWan);
 allItems.forEach(it=>{
 catCounts[it.cat]=(catCounts[it.cat]||0)+1;
 priCounts[it.pri]++;
@@ -731,7 +791,6 @@ Object.values(votes).forEach(v=>{Object.values(v).forEach(val=>{if(val==="yes")v
 
 const maxCat=Math.max(...Object.values(catCounts));
 const maxDistrict=Math.max(...Object.values(districtCounts));
-const myrTotal=Math.round(priceTotal*VND_TO_MYR*100)/100;
 
 view.innerHTML=`
 <div class="stats-title">📊 ${lang==="zh"?"数据统计":"Statistics"}</div>
@@ -742,8 +801,8 @@ view.innerHTML=`
 </div>
 <div class="stats-card">
 <div class="stats-card-title">${lang==="zh"?"预算总计":"Total Budget"}</div>
-<div class="stats-card-value" style="color:var(--green)">${priceTotal}万VND</div>
-<div style="font-size:12px;color:var(--text2);margin-top:4px">≈ RM${myrTotal}</div>
+<div class="stats-card-value" style="color:var(--green)">${priceTotalWan}万VND</div>
+<div style="font-size:12px;color:var(--text2);margin-top:4px">≈ RM${priceTotalMYR}</div>
 </div>
 <div class="stats-card">
 <div class="stats-card-title">${lang==="zh"?"投票总数":"Total Votes"}</div>
@@ -800,8 +859,23 @@ renderAll();
 function toggleCat(id){if(activeCats.has(id))activeCats.delete(id);else activeCats.add(id);renderAll()}
 function togglePri(id){if(activePri.has(id))activePri.delete(id);else activePri.add(id);renderAll()}
 function setSort(id){sortBy=id;renderAll()}
-function toggleLang(){lang=lang==="zh"?"en":"zh";document.getElementById("langBtn").textContent=lang==="zh"?"EN":"中";save();renderAll()}
-function toggleTheme(){isDark=!isDark;document.documentElement.setAttribute("data-theme",isDark?"dark":"");document.getElementById("themeBtn").textContent=isDark?"☀️":"🌙";localStorage.setItem("v5_theme",isDark?"dark":"")}
+
+// FIX: toggleLang/toggleTheme 用实际的设置按钮 id 而不是 langBtn/themeBtn
+function toggleLang(){
+lang=lang==="zh"?"en":"zh";
+const btn=document.getElementById("settingsLangBtn");
+if(btn)btn.textContent=lang==="zh"?"EN 英文":"中 中文";
+save();renderAll();
+}
+
+function toggleTheme(){
+isDark=!isDark;
+document.documentElement.setAttribute("data-theme",isDark?"dark":"");
+const btn=document.getElementById("settingsThemeBtn");
+if(btn)btn.textContent=isDark?"☀️ 浅色主题":"🌙 暗色主题";
+save();
+}
+
 function toggleStar(id){if(stars.includes(id))stars=stars.filter(s=>s!==id);else stars.push(id);save();renderAll()}
 
 function vote(itemId,member,value){
@@ -822,6 +896,19 @@ save();renderAll();
 function removeFromDay(itemId){
 days.forEach(d=>d.items=d.items.filter(id=>id!==itemId));
 save();renderAll();
+}
+
+// FIX: 新增删除自定义景点功能
+function deleteCustomItem(id){
+if(!isCustomItem(id)){showToast(t("只能删除自定义景点","Only custom items can be deleted"));return}
+const item=allItems.find(i=>i.id===id);
+if(!item)return;
+if(!confirm(t(`确定删除「${item.name}」？`,"Delete '"+item.name+"'?")))return;
+customItems=customItems.filter(it=>it.id!==id);
+days.forEach(d=>d.items=d.items.filter(x=>x!==id));
+delete votes[id];delete notes[id];stars=stars.filter(s=>s!==id);
+save();renderAll();
+showToast(t("已删除","Deleted"));
 }
 
 function showModal(mode){
@@ -845,7 +932,7 @@ body.innerHTML=`
 <select id="modalInput3">${CATS.map(c=>`<option value="${c.id}">${c.icon} ${t(c.zh,c.en)}</option>`).join("")}</select>
 <select id="modalInput4"><option value="red">🔴 ${t("必去","Must-see")}</option><option value="yellow">🟡 ${t("推荐","Recommended")}</option><option value="white">⚪ ${t("可选","Optional")}</option></select>
 <select id="modalInput5"><option value="第一郡">第一郡</option><option value="第三郡">第三郡</option><option value="第五郡">第五郡</option><option value="Bình Thạnh">Bình Thạnh</option><option value="第十郡">第十郡</option><option value="周边">周边</option></select>
-<input id="modalInput6" type="number" placeholder="${t("价格（万VND）","Price (万VND)")}" value="0">
+<input id="modalInput6" type="number" min="0" placeholder="${t("价格（万VND）","Price (万VND)")}" value="0">
 <textarea id="modalInput7" placeholder="${t("描述/备注","Description/Notes")}" rows="2"></textarea>
 `;
 }
@@ -870,7 +957,7 @@ const price=parseInt(document.getElementById("modalInput6").value)||0;
 const desc=document.getElementById("modalInput7").value.trim();
 if(name&&nameEn){
 const newId=Date.now();
-customItems.push({id:newId,name,nameEn,cat,pri,time:["afternoon"],district,hours:"自定义",notes:desc,notesEn:desc,desc:"",price,addr:"",img:""});
+customItems.push({id:newId,name,nameEn,cat,pri,time:["afternoon"],district,hours:t("自定义","Custom"),notes:desc,notesEn:desc,desc:"",price,addr:"",img:""});
 save();renderAll();showToast(t("已添加: "+name,"Added: "+name));
 }
 }else if(modalMode==="editItem"){
@@ -883,32 +970,33 @@ const district=document.getElementById("modalInput5").value;
 const price=parseInt(document.getElementById("modalInput6").value)||0;
 const hours=document.getElementById("modalInput7").value.trim();
 const addr=document.getElementById("modalInput8").value.trim();
+// FIX: 分离 img 和 xhsUrl,img 用 modalInput9,xhsUrl 用 modalInput11
 const img=document.getElementById("modalInput9").value.trim();
-const notes=document.getElementById("modalInput10").value.trim();
-const xhsUrl=document.getElementById("modalInput9").value.trim();
+const notesVal=document.getElementById("modalInput10").value.trim();
+const xhsUrl=document.getElementById("modalInput11").value.trim();
 if(name&&nameEn){
-const item=ITEMS.find(i=>i.id===id);
-if(item){
+const isCustom=isCustomItem(id);
+if(!isCustom){
 if(!modifiedItems[id])modifiedItems[id]={};
-modifiedItems[id].name=name;modifiedItems[id].nameEn=nameEn;
-modifiedItems[id].cat=cat;modifiedItems[id].pri=pri;
-modifiedItems[id].district=district;modifiedItems[id].price=price;
-modifiedItems[id].hours=hours;modifiedItems[id].addr=addr;
-modifiedItems[id].img=img;modifiedItems[id].notes=notes;modifiedItems[id].notesEn=notes;
-modifiedItems[id].xhsUrl=xhsUrl;
-if(!modifiedItems[id].xhsImages)modifiedItems[id].xhsImages=[];
-save();renderAll();showToast(t("已更新: "+name,"Updated: "+name));
+const m=modifiedItems[id];
+m.name=name;m.nameEn=nameEn;
+m.cat=cat;m.pri=pri;
+m.district=district;m.price=price;
+m.hours=hours;m.addr=addr;
+m.img=img;m.notes=notesVal;m.notesEn=notesVal;
+m.xhsUrl=xhsUrl;
+if(!m.xhsImages)m.xhsImages=[];
 }else{
 const custom=customItems.find(i=>i.id===id);
 if(custom){
 custom.name=name;custom.nameEn=nameEn;custom.cat=cat;custom.pri=pri;
 custom.district=district;custom.price=price;custom.hours=hours;
-custom.addr=addr;custom.img=img;custom.notes=notes;custom.notesEn=notes;
+custom.addr=addr;custom.img=img;custom.notes=notesVal;custom.notesEn=notesVal;
 custom.xhsUrl=xhsUrl;
 if(!custom.xhsImages)custom.xhsImages=[];
+}
+}
 save();renderAll();showToast(t("已更新: "+name,"Updated: "+name));
-}
-}
 }
 }
 hideModal();
@@ -960,6 +1048,7 @@ const m=url.match(/\/([a-f0-9]{24})/);
 return m?m[1]:null;
 }
 
+// FIX: 编辑表单 img 和 xhsUrl 用不同的 input id,避免之前 modalInput9 被重复读取
 function editItem(id){
 const item=ITEMS.find(i=>i.id===id)||customItems.find(i=>i.id===id);
 if(!item)return;
@@ -988,13 +1077,14 @@ body.innerHTML=`
 <option value="第十郡"${(mod.district||item.district)==="第十郡"?" selected":""}>第十郡</option>
 <option value="周边"${(mod.district||item.district)==="周边"?" selected":""}>周边</option>
 </select>
-<input id="modalInput6" type="number" value="${mod.price??item.price}" placeholder="${t("价格（万VND）","Price (万VND)")}">
+<input id="modalInput6" type="number" min="0" value="${mod.price??item.price}" placeholder="${t("价格（万VND）","Price (万VND)")}">
 <input id="modalInput7" value="${mod.hours||item.hours||""}" placeholder="${t("营业时间","Opening Hours")}">
 <input id="modalInput8" value="${mod.addr||item.addr||""}" placeholder="${t("地址","Address")}">
+<input id="modalInput9" value="${mod.img||item.img||""}" placeholder="${t("封面图 URL","Cover Image URL")}">
 <div style="margin-bottom:12px">
 <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px">📕 ${t("小红书帖子链接","Xiaohongshu Post URL")}</label>
 <div style="display:flex;gap:6px">
-<input id="modalInput9" value="${mod.xhsUrl||item.xhsUrl||""}" placeholder="${t("粘贴小红书帖子链接...","Paste XHS post URL...")}" style="flex:1">
+<input id="modalInput11" value="${mod.xhsUrl||item.xhsUrl||""}" placeholder="${t("粘贴小红书帖子链接...","Paste XHS post URL...")}" style="flex:1">
 <button class="modal-btn primary" onclick="openXhsParser()" type="button" style="white-space:nowrap;padding:8px 12px;font-size:12px">🔍 ${t("一键解析","Parse")}</button>
 </div>
 <div id="xhsParseTip" style="font-size:10px;color:var(--accent);margin-top:4px;display:none">
@@ -1017,20 +1107,30 @@ overlay.classList.add("show");
 }
 let modalEditId=null;
 
+// FIX: fetchXhsFromModal 用 modalInput11 读取 xhsUrl
 async function fetchXhsFromModal(){
-const url=document.getElementById("modalInput9").value.trim();
-if(!url){showToast("请输入小红书链接");return}
+const url=document.getElementById("modalInput11").value.trim();
+if(!url){showToast(t("请输入小红书链接","Please enter XHS URL"));return}
 const imgs=await fetchXhsImages(url);
 if(imgs.length){
 const id=modalEditId;
-const item=ITEMS.find(i=>i.id===id);
+const item=ITEMS.find(i=>i.id===id)||customItems.find(i=>i.id===id);
 if(item){
+const isCustom=isCustomItem(id);
+const target=isCustom?customItems.find(i=>i.id===id):null;
+if(isCustom&&target){
+if(!target.xhsImages)target.xhsImages=[];
+imgs.forEach(u=>{if(!target.xhsImages.includes(u))target.xhsImages.push(u)});
+if(!target.img&&imgs.length)target.img=imgs[0];
+}else{
 if(!modifiedItems[id])modifiedItems[id]={};
 if(!modifiedItems[id].xhsImages)modifiedItems[id].xhsImages=[];
 imgs.forEach(u=>{if(!modifiedItems[id].xhsImages.includes(u))modifiedItems[id].xhsImages.push(u)});
 if(!modifiedItems[id].img&&imgs.length)modifiedItems[id].img=imgs[0];
+}
 save();
-document.getElementById("xhsPreview").innerHTML=modifiedItems[id].xhsImages.map((u,i)=>`<div style="position:relative;display:inline-block;margin:4px"><img src="${u}" style="width:80px;height:80px;object-fit:cover;border-radius:8px"><button onclick="removeXhsImg(${i})" style="position:absolute;top:-4px;right:-4px;width:18px;height:18px;border-radius:50%;background:var(--red);color:#fff;border:none;cursor:pointer;font-size:10px">✕</button></div>`).join("");
+const xhsImages=isCustom?(target.xhsImages||[]):(modifiedItems[id].xhsImages||[]);
+document.getElementById("xhsPreview").innerHTML=xhsImages.map((u,i)=>`<div style="position:relative;display:inline-block;margin:4px"><img src="${u}" style="width:80px;height:80px;object-fit:cover;border-radius:8px"><button onclick="removeXhsImg(${i})" style="position:absolute;top:-4px;right:-4px;width:18px;height:18px;border-radius:50%;background:var(--red);color:#fff;border:none;cursor:pointer;font-size:10px">✕</button></div>`).join("");
 }
 }
 }
@@ -1052,8 +1152,9 @@ showToast(t("无法读取剪贴板，请手动粘贴","Cannot read clipboard, pa
 }
 }
 
+// FIX: openXhsParser 用 modalInput11
 function openXhsParser(){
-const url=document.getElementById("modalInput9").value.trim();
+const url=document.getElementById("modalInput11").value.trim();
 if(url){
 window.open("https://dy.kukutool.com/xiaohongshu?url="+encodeURIComponent(url),"_blank");
 }else{
@@ -1063,12 +1164,22 @@ document.getElementById("xhsParseTip").style.display="block";
 showToast(t("在新窗口完成解析后，点击「粘贴图片」按钮","After parsing in new window, click 'Paste Images'"));
 }
 
+// FIX: clearXhsImages/addManualImages/removeXhsImg 都要兼容自定义景点
+function getEditableItem(id){
+const isCustom=isCustomItem(id);
+if(isCustom){const c=customItems.find(i=>i.id===id);return c?{item:c,isCustom:true}:null}
+const it=ITEMS.find(i=>i.id===id);
+if(!it)return null;
+if(!modifiedItems[id])modifiedItems[id]={};
+return{item:modifiedItems[id],isCustom:false};
+}
+
 function clearXhsImages(){
 const id=modalEditId;
-const item=ITEMS.find(i=>i.id===id);
-if(item&&modifiedItems[id]){
-modifiedItems[id].xhsImages=[];
-modifiedItems[id].img="";
+const r=getEditableItem(id);
+if(r){
+r.item.xhsImages=[];
+r.item.img="";
 save();
 document.getElementById("xhsPreview").innerHTML="";
 document.getElementById("modalInputImgUrls").value="";
@@ -1080,29 +1191,28 @@ function addManualImages(){
 const textarea=document.getElementById("modalInputImgUrls");
 const urls=textarea.value.split("\n").map(u=>u.trim()).filter(u=>u&&(u.startsWith("http://")||u.startsWith("https://")));
 const id=modalEditId;
-const item=ITEMS.find(i=>i.id===id);
-if(item&&urls.length){
-if(!modifiedItems[id])modifiedItems[id]={};
-if(!modifiedItems[id].xhsImages)modifiedItems[id].xhsImages=[];
-urls.forEach(u=>{if(!modifiedItems[id].xhsImages.includes(u))modifiedItems[id].xhsImages.push(u)});
-if(!modifiedItems[id].img&&modifiedItems[id].xhsImages.length)modifiedItems[id].img=modifiedItems[id].xhsImages[0];
+const r=getEditableItem(id);
+if(r&&urls.length){
+if(!r.item.xhsImages)r.item.xhsImages=[];
+urls.forEach(u=>{if(!r.item.xhsImages.includes(u))r.item.xhsImages.push(u)});
+if(!r.item.img&&r.item.xhsImages.length)r.item.img=r.item.xhsImages[0];
 save();
-document.getElementById("xhsPreview").innerHTML=modifiedItems[id].xhsImages.map((u,i)=>`<div style="position:relative;display:inline-block;margin:4px"><img src="${u}" style="width:80px;height:80px;object-fit:cover;border-radius:8px"><button onclick="removeXhsImg(${i})" style="position:absolute;top:-4px;right:-4px;width:18px;height:18px;border-radius:50%;background:var(--red);color:#fff;border:none;cursor:pointer;font-size:10px">✕</button></div>`).join("");
-textarea.value=modifiedItems[id].xhsImages.join("\n");
+document.getElementById("xhsPreview").innerHTML=r.item.xhsImages.map((u,i)=>`<div style="position:relative;display:inline-block;margin:4px"><img src="${u}" style="width:80px;height:80px;object-fit:cover;border-radius:8px"><button onclick="removeXhsImg(${i})" style="position:absolute;top:-4px;right:-4px;width:18px;height:18px;border-radius:50%;background:var(--red);color:#fff;border:none;cursor:pointer;font-size:10px">✕</button></div>`).join("");
+textarea.value=r.item.xhsImages.join("\n");
 showToast(t(`已添加 ${urls.length} 张图片`,`Added ${urls.length} images`));
 }
 }
 
 function removeXhsImg(idx){
 const id=modalEditId;
-const item=ITEMS.find(i=>i.id===id);
-if(item&&modifiedItems[id]&&modifiedItems[id].xhsImages){
-modifiedItems[id].xhsImages.splice(idx,1);
-if(modifiedItems[id].xhsImages.length===0)modifiedItems[id].img="";
-else if(!modifiedItems[id].img)modifiedItems[id].img=modifiedItems[id].xhsImages[0];
+const r=getEditableItem(id);
+if(r&&r.item.xhsImages){
+r.item.xhsImages.splice(idx,1);
+if(r.item.xhsImages.length===0)r.item.img="";
+else if(!r.item.img)r.item.img=r.item.xhsImages[0];
 save();
-document.getElementById("xhsPreview").innerHTML=modifiedItems[id].xhsImages.map((u,i)=>`<div style="position:relative;display:inline-block;margin:4px"><img src="${u}" style="width:80px;height:80px;object-fit:cover;border-radius:8px"><button onclick="removeXhsImg(${i})" style="position:absolute;top:-4px;right:-4px;width:18px;height:18px;border-radius:50%;background:var(--red);color:#fff;border:none;cursor:pointer;font-size:10px">✕</button></div>`).join("");
-document.getElementById("modalInputImgUrls").value=modifiedItems[id].xhsImages.join("\n");
+document.getElementById("xhsPreview").innerHTML=r.item.xhsImages.map((u,i)=>`<div style="position:relative;display:inline-block;margin:4px"><img src="${u}" style="width:80px;height:80px;object-fit:cover;border-radius:8px"><button onclick="removeXhsImg(${i})" style="position:absolute;top:-4px;right:-4px;width:18px;height:18px;border-radius:50%;background:var(--red);color:#fff;border:none;cursor:pointer;font-size:10px">✕</button></div>`).join("");
+document.getElementById("modalInputImgUrls").value=r.item.xhsImages.join("\n");
 }
 }
 
@@ -1232,30 +1342,47 @@ function closeLightbox(){var el=document.getElementById("lightbox");if(el)el.rem
 function removeMember(name){members=members.filter(m=>m!==name);save();renderSettingsMembers();renderAll()}
 function clearDays(){if(confirm(t("确定清空所有行程？","Clear all days?"))){days=[];save();renderAll()}}
 
+// FIX: 智能规划按区域分组 + 单日上限 4 个 + 优先必去 + 跨天分布
 function autoPlan(){
+const MAX_PER_DAY=4;
 const mustSee=allItems.filter(it=>it.pri==="red");
 const recommended=allItems.filter(it=>it.pri==="yellow");
-const all=[...mustSee,...recommended];
-const grouped={};
-all.forEach(it=>{
-if(!grouped[it.district])grouped[it.district]=[];
-grouped[it.district].push(it);
-});
+// 按时间段分桶,跨天均匀分布
+const morningItems=mustSee.filter(it=>it.time.includes("morning"));
+const afternoonItems=mustSee.filter(it=>it.time.includes("afternoon"));
+const nightItems=mustSee.filter(it=>it.time.includes("night"));
+const others=recommended.slice();
+
+// 计算需要的天数 = 必去景点数 / 单日上限,最少 1 天
+const totalMust=mustSee.length;
+const neededDays=Math.max(1,Math.ceil(totalMust/MAX_PER_DAY));
+
 days=[];
 let dayNum=1;
-Object.entries(grouped).forEach(([district,items])=>{
-if(items.length>0){
-days.push({name:`Day ${dayNum} - ${district}`,items:items.map(it=>it.id)});
+
+// 先按必去景点平均分配到 N 天
+const buckets=Array.from({length:neededDays},()=>[]);
+let bucketIdx=0;
+[...morningItems,...afternoonItems,...nightItems].forEach(it=>{
+  buckets[bucketIdx%neededDays].push(it);
+  bucketIdx++;
+});
+// 推荐景点均匀追加
+others.forEach(it=>{
+  const target=buckets.reduce((a,b)=>a.length<=b.length?a:b);
+  if(target.length<MAX_PER_DAY+1)target.push(it);
+});
+
+buckets.forEach((bucket,i)=>{
+if(bucket.length){
+const label=i===0?`Day ${dayNum}`:`Day ${dayNum}`;
+days.push({name:label,items:bucket.map(it=>it.id)});
 dayNum++;
 }
 });
-save();renderAll();showToast(t("智能规划完成！已按区域分配行程","Auto-planned by district!"))
-}
 
-function updateBudget(){
-const val=parseInt(document.getElementById("settingsBudget").value)||0;
-const myr=Math.round(val*VND_TO_MYR*100)/100;
-document.getElementById("settingsBudgetMYR").textContent="RM"+myr;
+save();renderDays();
+showToast(t(`智能规划完成！共 ${days.length} 天 ${days.reduce((s,d)=>s+d.items.length,0)} 项`,"Auto-planned! "+days.length+" days, "+days.reduce((s,d)=>s+d.items.length,0)+" items"));
 }
 
 function exportResults(){
@@ -1266,7 +1393,7 @@ days.forEach(day=>{
 lines.push(`\n【${day.name}】`);
 day.items.forEach(id=>{
 const it=allItems.find(i=>i.id===id);
-if(it)lines.push(`  • ${it.name} (${it.nameEn}) - ${it.hours} - ${it.district} - ${it.price}万VND`);
+if(it)lines.push(`  • ${it.name} (${it.nameEn}) - ${it.hours} - ${it.district} - ${wanToVND(it.price).toLocaleString()} VND (≈ RM${wanToMYR(it.price)})`);
 });
 });
 lines.push(``);
@@ -1282,14 +1409,23 @@ lines.push(`  ❌ 不去: ${no.join(", ")||"无"}`);
 lines.push(`  ⏳ 待定: ${maybe.join(", ")||"无"}`);
 });
 }
-const consensus=allItems.filter(it=>members.length&&members.every(m=>(votes[it.id]||{})[m]==="yes"));
-if(consensus.length){lines.push(`\n=== 全员共识去 ===`);consensus.forEach(it=>lines.push(`  ⭐ ${it.name}`))}
+// FIX: 全员共识逻辑更宽容:全员投了且都 yes(或没投的也算)
+const consensus=allItems.filter(it=>{
+  if(!members.length)return false;
+  return members.every(m=>{
+    const v=(votes[it.id]||{})[m];
+    return v==="yes"||v===undefined||v==="";
+  });
+});
+const allYes=allItems.filter(it=>members.length&&members.every(m=>(votes[it.id]||{})[m]==="yes"));
+if(allYes.length){lines.push(`\n=== ⭐ 全员明确想去 ===`);allYes.forEach(it=>lines.push(`  ⭐ ${it.name}`))}
+if(consensus.length&&consensus.length!==allYes.length){lines.push(`\n=== 全部成员不反对 ===`);consensus.forEach(it=>lines.push(`  👍 ${it.name}`))}
 const text=lines.join("\n");
 navigator.clipboard.writeText(text).then(()=>showToast("已复制到剪贴板！")).catch(()=>showToast("复制失败"));
 }
 
 function exportData(){
-const data={lang,members,votes,stars,notes,days,customItems};
+const data={lang,members,votes,stars,notes,days,customItems,modifiedItems,budget};
 const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
 const url=URL.createObjectURL(blob);
 const a=document.createElement("a");
@@ -1310,10 +1446,24 @@ if(e.key==="l")toggleLang();
 
 window.addEventListener("scroll",()=>{document.getElementById("scrollTop").classList.toggle("show",window.scrollY>300)});
 
-document.getElementById("search").addEventListener("input",e=>{searchTerm=e.target.value;renderAll()});
+// FIX: 搜索框加 150ms 防抖,避免每次按键都重渲整个 grid
+let searchDebounceTimer=null;
+document.getElementById("search").addEventListener("input",e=>{
+  searchTerm=e.target.value;
+  clearTimeout(searchDebounceTimer);
+  searchDebounceTimer=setTimeout(renderAll,150);
+});
 
-if(localStorage.getItem("v5_theme")==="dark"){isDark=true;document.documentElement.setAttribute("data-theme","dark");document.getElementById("themeBtn").textContent="☀️"}
-if(lang==="en")document.getElementById("langBtn").textContent="中";
+// 初始化主题
+if(isDark){document.documentElement.setAttribute("data-theme","dark")}
+// FIX: 初始化设置按钮文本(原来用不存在的 langBtn/themeBtn)
+const _themeBtn=document.getElementById("settingsThemeBtn");
+if(_themeBtn)_themeBtn.textContent=isDark?"☀️ 浅色主题":"🌙 暗色主题";
+const _langBtn=document.getElementById("settingsLangBtn");
+if(_langBtn)_langBtn.textContent=lang==="zh"?"EN 英文":"中 中文";
+// 初始化预算显示
+const _budgetInput=document.getElementById("settingsBudget");
+if(_budgetInput)_budgetInput.value=budget;
 updateSettingsBudget();
 renderAll();
 </script>

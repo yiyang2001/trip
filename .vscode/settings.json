@@ -1,0 +1,17 @@
+{
+    "yaml.schemas": {
+        "file:///c%3A/Users/yy/.vscode/extensions/continue.continue-1.2.22-win32-x64/config-yaml-schema.json": [
+            ".continue/**/*.yaml"
+        ],
+        "file:///c%3A/Users/yy/.vscode/extensions/continue.continue-1.2.24-win32-x64/config-yaml-schema.json": [
+            ".continue/**/*.yaml"
+        ],
+        "file:///c%3A/Users/yy/.vscode/extensions/continue.continue-2.0.0-win32-x64/config-yaml-schema.json": [
+            ".continue/**/*.yaml"
+        ],
+        "file:///c%3A/Users/yy/.vscode/extensions/continue.continue-2.1.0-win32-x64/config-yaml-schema.json": [
+            ".continue/**/*.yaml"
+        ],
+        "file:///c:/Users/yy/.vscode/extensions/continue.continue-2.1.0-win32-x64/config-yaml-schema.json": "file:///c%3A/Users/yy/.continue/config.yaml"
+    }
+}
